@@ -1,6 +1,55 @@
 from tokens import create_tokens
 import time
-
+'''
+function to add two binary numbers
+it takes input two binary strings and return the string which represents sum of numbers represented by the input strings
+'''
+def binadd (a,b,flags):
+    result=""
+    carry = '0'
+    no1=0
+    no0=0
+    for i in range(7,-1,-1):
+        if a[i] == '0' and b[i] == '0' and carry =='0':
+            result[i] = '0'
+            carry = '0'
+        elif a[i] == '1' and b[i] == '1' and carry =='0':
+            result [i] ='0'
+            carry = '1'
+        elif a[i] == '1' and b[i] =='0' and carry == '0':
+            result [i] = '1'
+            carry ='0'
+        elif a[i] == '0' and b[i] =='1' and carry == '0':
+            result [i] = '1'
+            carry ='0'
+        elif a[i] == '1' and b[i] =='0' and carry == '1':
+            result [i] = '0'
+            carry ='1'
+        elif a[i] == '0' and b[i] =='1' and carry == '1':
+            result [i] = '1'
+            carry ='0'
+        elif a[i] == '1' and b[i] =='1' and carry == '1':
+            result [i] = '1'
+            carry ='1'
+        elif a[i] == '0' and b[i] =='0' and carry == '1':
+            result [i] = '1'
+            carry ='0'
+        if i == 3 and carry == '1':
+            flags['AC'] =1
+        if result[i] == '1':
+            no1 = no1+1
+        else:
+            no0+=1
+    if carry == '1':
+        flags['C"] =1 
+    if int (result , 2)==0:
+            flags['Z'] =1
+    if result[0] == '1':
+            flags['S'] = 1
+    if no1 %2 ==0:
+            flags['P'] =1
+    retrun result
+        
 # starting program
 if __name__ == '__main__':
         
@@ -238,7 +287,8 @@ if __name__ == '__main__':
         # in the accumulator. All flags are affected.
 
         elif(p[0] == "ADD"):
-            pass
+              reg['A'] = binadd(reg['A'] , reg[p[1]] ,flags)
+            
 
         # ADI 8-bit  (Add immediate data to accumulator) [A] <-- [A] + data.
         # Two byte, Immediate addressing mode
