@@ -297,7 +297,9 @@ if __name__ == '__main__':
         # data conditions of the result in the accumulator.
 
         elif(p[0] == "ADI"):
-            pass
+              a = bin(int(p[1], 2)).lstrip('-0b').zfill(8)
+              reg['A'] = binadd(reg['A'] , a, flags)
+                
 
         # ADC R/M  (Add register/memory with carry to accumulator). [A] <-- [A] + [r]/[[H-L]] + [CS]
         # One byte instruction.
@@ -306,7 +308,7 @@ if __name__ == '__main__':
         # accumulator. All flags are affected.
 
         elif(p[0] == "ADC"):
-            pass
+            
 
         # ACI 8-bit  (Add with carry immediate data to accumulator). [A] <-- [A] + data + [CS].
         # Two byte instruction.
