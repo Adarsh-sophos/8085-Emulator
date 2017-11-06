@@ -349,7 +349,9 @@ if __name__ == '__main__':
         # in the accumulator. All flags are affected.
 
         elif(p[0] == "SUB"):
-            pass
+            x=int(reg[p[1]],2)
+            num_bits = 8
+            intm = bin(x - (1 << num_bits)).lstrip("-0b").zfill(8))
 
         # SUI 8-bit  (Subtract immediate data from accumulator) [A] <-- [A] – data.
         # Two byte, Immediate addressing mode
