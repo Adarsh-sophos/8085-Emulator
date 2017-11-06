@@ -287,8 +287,11 @@ if __name__ == '__main__':
         # in the accumulator. All flags are affected.
 
         elif(p[0] == "ADD"):
-              reg['A'] = binadd(reg['A'] , reg[p[1]] ,flags)
-            
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                reg['A'] = binadd(reg['A'] , reg[p[1]] ,flags)
+            elif(p[1] == "M"):
+                reg['A"] = binadd(reg['A'],memory[int(reg['H'] + reg['L'], 2)],flags)
+                
 
         # ADI 8-bit  (Add immediate data to accumulator) [A] <-- [A] + data.
         # Two byte, Immediate addressing mode
@@ -297,7 +300,7 @@ if __name__ == '__main__':
         # data conditions of the result in the accumulator.
 
         elif(p[0] == "ADI"):
-              a = bin(int(p[1], 2)).lstrip('-0b').zfill(8)
+              a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
               reg['A'] = binadd(reg['A'] , a, flags)
                 
 
@@ -308,6 +311,17 @@ if __name__ == '__main__':
         # accumulator. All flags are affected.
 
         elif(p[0] == "ADC"):
+              if flags['C'] == 1:
+                    tc = "00000001"
+              else :
+                    tc = "00000000"
+              if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']): 
+                  reg['A'] = binadd(reg['A'] , reg[p[1]] , flags)
+                  reg['A'] = binadd(reg['A'] , tc , flags)
+              elif p[1] == "M":
+                  reg['A'] = binadd(reg['A'] , memory[int(reg['H'] + reg['L'], 2)] , flags)
+                  reg['A'] = binadd(reg['A'] , tc , flags)
+                
             
 
         # ACI 8-bit  (Add with carry immediate data to accumulator). [A] <-- [A] + data + [CS].
@@ -316,7 +330,14 @@ if __name__ == '__main__':
         # the result in accumulator. All flags are affected.
 
         elif(p[0] == "ACI"):
-            pass
+           if flags['C'] == 1:
+               tc = "00000001"
+           else :
+               tc = "00000000"
+            a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
+            reg['A'] = binadd(reg['A'] , a, flags)
+            reg['A'] = binadd(reg['A'] , tc , flags)
+                   
 
         # SUB R  (Subtract register from accumulator). [A] <-- [A] – [r].
         # One byte, Register addressing mode
