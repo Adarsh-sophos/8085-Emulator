@@ -427,7 +427,13 @@ if __name__ == '__main__':
         # These instructions affect all flags except the Carry flag.
 
         elif(p[0] == "INR"):
-            pass
+            temp = flags ['C']
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                reg[p[1]] = binadd(reg[p[1]] , "00000001" , flags)
+            elif p[1] == 'M':
+                memory[int(reg['H'] + reg['L'], 2)] = binadd(memory[int(reg['H'] + reg['L'], 2)] , "00000001" , flags)
+            flags['C'] = temp
+                
 
         # INX Rp, DCX Rp  (   [rp] <-- [rp] – 1, [rp] <-- [rp] - 1)
         # One byte, Register addressing mode
@@ -435,7 +441,7 @@ if __name__ == '__main__':
         # These instructions do not affect the flags.
 
         elif(p[0] == "INX"):
-            pass
+            
 
         # DAD Rp
         # Rp can be BC, DE, HL, or SP.
