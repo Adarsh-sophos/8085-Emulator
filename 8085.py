@@ -49,6 +49,30 @@ def binadd (a,b,flags):
     if no1 %2 ==0:
             flags['P'] =1
     retrun result
+              
+def comp (a):
+    for i in range(8):
+        if a[i] == "0":
+              a[i] ="1" 
+        elif a[i] == "1":
+              a[i] = "0"
+    carry = 0
+    for i in range(7,-1):
+        if a[i] == "0" and carry == 0:
+              a[i] = 0
+              carry =0 
+        elif a[i] == "1" and carry == 1:
+              a[i] =1
+              carry = 0
+        elif a[i] == "1" and carry == 1:
+              a[i] = 0
+              carry =1
+        elif a[i] == "0" and carry ==1 :
+              a[i] = 1
+              carry = 0
+    return a
+              
+              
         
 # starting program
 if __name__ == '__main__':
@@ -334,9 +358,9 @@ if __name__ == '__main__':
                tc = "00000001"
            else :
                tc = "00000000"
-            a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
-            reg['A'] = binadd(reg['A'] , a, flags)
-            reg['A'] = binadd(reg['A'] , tc , flags)
+           a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
+           reg['A'] = binadd(reg['A'] , a, flags)
+           reg['A'] = binadd(reg['A'] , tc , flags)
                    
 
         # SUB R  (Subtract register from accumulator). [A] <-- [A] – [r].
@@ -349,15 +373,22 @@ if __name__ == '__main__':
         # in the accumulator. All flags are affected.
 
         elif(p[0] == "SUB"):
-            x=int(reg[p[1]],2)
-            num_bits = 8
-            intm = bin(x - (1 << num_bits)).lstrip("-0b").zfill(8))
+           if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                a = comp (reg[p[1]])
+                reg['A'] = binadd(reg['A'] , a , flags)
+           elif p[1] == "M":
+                a= comp(memory[int(reg['H'] + reg['L'], 2)])
+                reg['A'] = binadd(reg['A'] , a, flags)
+            
 
         # SUI 8-bit  (Subtract immediate data from accumulator) [A] <-- [A] – data.
         # Two byte, Immediate addressing mode
 
         elif(p[0] == "SUI"):
-            pass
+            a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
+            b= comp(a)
+            reg['A'] = binadd(reg['A'] , b, flags)
+            
 
         # SBB R/M  (Subtract register/memory from accumulator with borrow). [A] <-- [A] – [r]/[[H-L]] – [CS].
         # One byte instruction.
@@ -366,13 +397,28 @@ if __name__ == '__main__':
         # in the accumulator. All flags are affected.
 
         elif(p[0] == "SBB"):
-            pass
-
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                a = comp (reg[p[1]])
+            elif p[1] == "M":
+                a= comp(memory[int(reg['H'] + reg['L'], 2)])
+            if flags['C'] == 0:
+                b = comp ("00000000")
+            else :
+                b = comp ("00000001")
+            reg['A'] = binadd(reg['A'] , a , flags)
+            reg['A'] = binadd(reg['A'] , b , flags)
         # SBI 8-bit  (Subtract immediate data from accumulator with borrow). [A] <-- [A] – data – [CS].
         # Two byte instruction.
 
         elif(p[0] == "SBI"):
-            pass
+            a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
+            b = comp (a)
+            if flags['C'] == 0:
+                c = comp ("00000000")
+            else :
+                c = comp ("00000001")
+            reg['A'] = binadd(reg['A'] , b , flags)
+            reg['A'] = binadd(reg['A'] , c, flags)
 
         # INR R/M, DCR R/M  ([r] <-- [r] + 1, [[H-L]] <-- [[H-L]] + 1)
         # One byte, Register/Indirect addressing mode
