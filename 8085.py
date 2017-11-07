@@ -441,6 +441,31 @@ if __name__ == '__main__':
         # These instructions do not affect the flags.
 
         elif(p[0] == "INX"):
+            temp1= flags['C']
+            temp2 = flags["AC"]
+            temp3 = flags ['P']
+            temp4 = flags['Z']
+            temp5 = flags['S']
+            if p[1] == 'B':
+                reg['C'] = binadd(reg['C'] , "00000001" , flags)
+                if flags['C'] == 1:
+                    reg['B'] = binadd(reg['B'] , "00000001" , flags)
+                    
+            elif p[1] == 'D':
+                reg['E'] = binadd(reg['E'] , "00000001" , flags)
+                if flags['C'] == 1:
+                    reg['D'] = binadd(reg['D'] , "00000001" , flags)
+                    
+            elif p[1] == 'H':
+                reg['L'] = binadd(reg['L'] , "00000001" , flags)
+                if flags['C'] == 1:
+                    reg['H'] = binadd(reg['H'] , "00000001" , flags)
+            flags['C'] = temp1
+            flags ['AC'] =temp2
+            flags['p'] = temp3
+            flags['Z'] = temp4
+            flags['S'] = temp5 
+             
             
 
         # DAD Rp
