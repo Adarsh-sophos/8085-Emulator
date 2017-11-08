@@ -41,7 +41,7 @@ def binadd (a,b,flags):
         else:
             no0+=1
     if carry == '1':
-        flags['C"] =1 
+        flags['C'] =1 
     if int (result , 2)==0:
             flags['Z'] =1
     if result[0] == '1':
@@ -475,7 +475,33 @@ if __name__ == '__main__':
         # in HL. Only CY flag is affected.
 
         elif(p[0] == "DAD"):
-            pass
+            temp1 = flags['AC']
+            temp2 = flags['P']
+            temp3 = flags['S'] 
+            temp4 = flags['Z']
+            if p[1] == 'B':
+                reg['L'] = binadd(reg['L'] , reg['C'] , flags)
+                hello = flags['C'] 
+                reg['H'] = binadd(reg['H'] , reg['B'] , flags)
+                reg['H'] = binadd(reg['H'] , hello , flags )
+            
+             if p[1] == 'D':
+                reg['L'] = binadd(reg['L'] , reg['E'] , flags)
+                hello = flags['C'] 
+                reg['H'] = binadd(reg['H'] , reg['D'] , flags)
+                reg['H'] = binadd(reg['H'] , hello , flags )
+                    
+             if p[1] == 'H':
+                reg['L'] = binadd(reg['L'] , reg['L'] , flags)
+                hello = flags['C'] 
+                reg['H'] = binadd(reg['H'] , reg['H'] , flags)
+                reg['H'] = binadd(reg['H'] , hello , flags )
+                
+                    
+             flags['AC'] = temp1
+             flags['P'] = temp2
+             flags['S'] = temp3
+             flags['Z'] = temp4
 
 
 
