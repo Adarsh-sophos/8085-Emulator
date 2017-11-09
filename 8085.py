@@ -519,7 +519,64 @@ if __name__ == '__main__':
         # CY flag is reset and AC flag is set. 
 
         elif(p[0] == "ANA"):
-            pass
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                a = reg['A']
+                b = reg[p[1]]
+                for i in range(8):
+                    if a[i] == '0' and b[i] == '0':
+                        a[i]  = '0'
+                    
+                    if a[i] == '1' and b[i] == '0':
+                        a[i]  = '0'
+                    
+                    if a[i] == '0' and b[i] == '1':
+                        a[i]  = '0'
+             
+                    if a[i] == '1' and b[i] == '1':
+                        a[i]  = '1'
+                    
+                    
+                reg['A'] = a
+                    
+            elif p[1] == 'M':
+                    
+                a = reg['A']
+                b = memory[int(reg['H'] + reg['L'], 2)]
+                for i in range(8):
+                    if a[i] == '0' and b[i] == '0':
+                        a[i]  = '0'
+                    
+                    if a[i] == '1' and b[i] == '0':
+                        a[i]  = '0'
+                    
+                    if a[i] == '0' and b[i] == '1':
+                        a[i]  = '0'
+             
+                    if a[i] == '1' and b[i] == '1':
+                        a[i]  = '1'
+                    
+                    
+                reg['A'] = a
+                
+                    
+                    
+            flag['C'] = 0
+            flag['AC'] = 1
+                    
+            if int (reg['A'] , 2) == 0:
+                    flag['Z'] = 1
+            if reg['A'][0] == 1:
+                    flag['S'] =1
+            no1=0
+            for i in range(8):
+                    if reg['A'][i] == 1:
+                        no1+=1
+            if no1 %2 ==0 :
+                    flags['P'] = 1
+                   
+                    
+            
+                    
 
         # ANI 8-bit
         # Two byte instruction.
