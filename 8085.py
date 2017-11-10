@@ -57,7 +57,7 @@ def comp (a):
         elif a[i] == "1":
               a[i] = "0"
     carry = 0
-    for i in range(7,-1):
+    for i in range(7,-1,-1):
         if a[i] == "0" and carry == 0:
               a[i] = 0
               carry =0 
@@ -587,70 +587,292 @@ if __name__ == '__main__':
         # CY flag is reset and AC flag is set.
 
         elif(p[0] == "ANI"):
-            pass
+            a = int (p[1] , 16)
+            b = bin(a).lstrip("-0b").zfill(8)
+            x = reg['A']
+            for i in range(8):
+                    if x[i] == '0' and b[i] == '0':
+                        x[i]  = '0'
+                    
+                    if x[i] == '1' and b[i] == '0':
+                        x[i]  = '0'
+                    
+                    if x[i] == '0' and b[i] == '1':
+                        x[i]  = '0'
+             
+                    if x[i] == '1' and b[i] == '1':
+                        x[i]  = '1'
+                    
+                    
+            reg['A'] = x 
+                    
+            flag['C'] = 0
+            flag['AC'] = 1
+                    
+            if int (reg['A'] , 2) == 0:
+                    flag['Z'] = 1
+            if reg['A'][0] == 1:
+                    flag['S'] =1
+            no1=0
+            for i in range(8):
+                    if reg['A'][i] == 1:
+                        no1+=1
+            if no1 %2 ==0 :
+                    flags['P'] = 1
+                
 
         # ORA R/M
         # All flags except CY and AC are modified reflecting the data conditions of the result in the accumulator. 
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "ORA"):
-            pass
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                a = reg['A']
+                b = reg[p[1]]
+                for i in range(8):
+                    if a[i] == '0' and b[i] == '0':
+                        a[i]  = '0'
+                    
+                    if a[i] == '1' and b[i] == '0':
+                        a[i]  = '1'
+                    
+                    if a[i] == '0' and b[i] == '1':
+                        a[i]  = '1'
+             
+                    if a[i] == '1' and b[i] == '1':
+                        a[i]  = '1'
+                    
+                    
+                reg['A'] = a
+                    
+            elif p[1] == 'M':
+                    
+                a = reg['A']
+                b = memory[int(reg['H'] + reg['L'], 2)]
+                for i in range(8):
+                    if a[i] == '0' and b[i] == '0':
+                        a[i]  = '0'
+                    
+                    if a[i] == '1' and b[i] == '0':
+                        a[i]  = '1'
+                    
+                    if a[i] == '0' and b[i] == '1':
+                        a[i]  = '1'
+             
+                    if a[i] == '1' and b[i] == '1':
+                        a[i]  = '1'
+                    
+                    
+                reg['A'] = a
+                
+                    
+                    
+            flag['C'] = 0
+            flag['AC'] = 0
+                    
+            if int (reg['A'] , 2) == 0:
+                    flag['Z'] = 1
+            if reg['A'][0] == 1:
+                    flag['S'] =1
+            no1=0
+            for i in range(8):
+                    if reg['A'][i] == 1:
+                        no1+=1
+            if no1 %2 ==0 :
+                    flags['P'] = 1
+                    
+            
+            
 
         # ORI 8-bit
         # All flags except CY and AC are modified reflecting the data conditions of the result in the accumulator. 
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "ORI"):
-            pass
+            a = int (p[1] , 16)
+            b = bin(a).lstrip("-0b").zfill(8)
+            x = reg['A']
+            for i in range(8):
+                    if x[i] == '0' and b[i] == '0':
+                        x[i]  = '0'
+                    
+                    if x[i] == '1' and b[i] == '0':
+                        x[i]  = '1'
+                    
+                    if x[i] == '0' and b[i] == '1':
+                        x[i]  = '1'
+             
+                    if x[i] == '1' and b[i] == '1':
+                        x[i]  = '1'
+                    
+                    
+            reg['A'] = x 
+                    
+            flag['C'] = 0
+            flag['AC'] = 0
+                    
+            if int (reg['A'] , 2) == 0:
+                    flag['Z'] = 1
+            if reg['A'][0] == 1:
+                    flag['S'] =1
+            no1=0
+            for i in range(8):
+                    if reg['A'][i] == 1:
+                        no1+=1
+            if no1 %2 ==0 :
+                    flags['P'] = 1
+                
 
         # XRA R/M
         # All flags except CY and AC are modified reflecting the data conditions of the result in the accumulator. 
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "XRA"):
-            pass
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                a = reg['A']
+                b = reg[p[1]]
+                for i in range(8):
+                    if a[i] == '0' and b[i] == '0':
+                        a[i]  = '0'
+                    
+                    if a[i] == '1' and b[i] == '0':
+                        a[i]  = '1'
+                    
+                    if a[i] == '0' and b[i] == '1':
+                        a[i]  = '1'
+             
+                    if a[i] == '1' and b[i] == '1':
+                        a[i]  = '0'
+                    
+                    
+                reg['A'] = a
+                    
+            elif p[1] == 'M':
+                    
+                a = reg['A']
+                b = memory[int(reg['H'] + reg['L'], 2)]
+                for i in range(8):
+                    if a[i] == '0' and b[i] == '0':
+                        a[i]  = '0'
+                    
+                    if a[i] == '1' and b[i] == '0':
+                        a[i]  = '1'
+                    
+                    if a[i] == '0' and b[i] == '1':
+                        a[i]  = '1'
+             
+                    if a[i] == '1' and b[i] == '1':
+                        a[i]  = '0'
+                    
+                    
+                reg['A'] = a
+                
+                    
+                    
+            flag['C'] = 0
+            flag['AC'] = 0
+                    
+            if int (reg['A'] , 2) == 0:
+                    flag['Z'] = 1
+            if reg['A'][0] == 1:
+                    flag['S'] =1
+            no1=0
+            for i in range(8):
+                    if reg['A'][i] == 1:
+                        no1+=1
+            if no1 %2 ==0 :
+                    flags['P'] = 1
 
         # XRI 8-bit
         # All flags except CY and AC are modified reflecting the data conditions of the result in the accumulator. 
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "XRI"):
-            pass
+            a = int (p[1] , 16)
+            b = bin(a).lstrip("-0b").zfill(8)
+            x = reg['A']
+            for i in range(8):
+                    if x[i] == '0' and b[i] == '0':
+                        x[i]  = '0'
+                    
+                    if x[i] == '1' and b[i] == '0':
+                        x[i]  = '1'
+                    
+                    if x[i] == '0' and b[i] == '1':
+                        x[i]  = '1'
+             
+                    if x[i] == '1' and b[i] == '1':
+                        x[i]  = '0'
+                    
+                    
+            reg['A'] = x 
+                    
+            flag['C'] = 0
+            flag['AC'] = 0
+                    
+            if int (reg['A'] , 2) == 0:
+                    flag['Z'] = 1
+            if reg['A'][0] == 1:
+                    flag['S'] =1
+            no1=0
+            for i in range(8):
+                    if reg['A'][i] == 1:
+                        no1+=1
+            if no1 %2 ==0 :
+                    flags['P'] = 1
 
         # CMA
         # One byte instruction.
         # Complement (logical NOT) the contents of the accumulator.
 
         elif(p[0] == "CMA"):
-            pass
+            for i in range(8):
+                if reg['A'][i] == 0:
+                    reg['A'][i] = 1
+                elif reg['A'][i] == 1:
+                    reg['A'][i] = 0
 
         # RLC  (Rotate accumulator left) [An+1] <-- [An], [A0] <-- [A7],[CS] <-- [A7]
         # Rotate each bit in the accumulator by one position to the left with the MSB 
         # shifting to the LSB position as well as to the CY flag.
 
         elif(p[0] == "RLC"):
-            pass
+            flags ['C'] = reg['A'][0]
+            for i in range(0,7):
+                reg['A'][i] = reg['A'][i+1]
+            reg['A'][7] = flags['C']
 
         # RAL  (Rotate accumulator left through carry) [An+1] <-- [An], [CS] <-- [A7], [A0] <-- [CS].
         # Rotate each bit in the accumulator by one position to the left with the MSB 
         # shifting to the CY flag and the CY flag bit shifting to the LSB position.
 
         elif(p[0] == "RAL"):
-            pass
+            reg['A'][7] = flags['C']
+            flags ['C'] = reg['A'][0]
+            for i in range(0,7):
+                reg['A'][i] = reg['A'][i+1]
+            
 
         # RRC  (Rotate accumulator right) [A7] <-- [A0], [CS] <-- [A0], [An] <-- [An+1]
         # Rotate each bit in the accumulator by one position to the right with the LSB 
         # shifting to the MSB position as well as to the CY flag.
 
         elif(p[0] == "RRC"):
-            pass
+            flags ['C'] = reg['A'][7]
+            for i in range(7,0,-1):
+                reg['A'][i-1] = reg['A'][i]
+            reg['A'][0] = flags['C']
+            
 
         # RAR  (Rotate accumulator right through carry) [An] <-- [An+1], [CS] <-- [A0], [A7] <-- [CS] 
         # Rotate each bit in the accumulator by one position to the right with the LSB 
         # shifting to the CY flag and the CY flag bit shifting to the MSB position.
 
         elif(p[0] == "RAR"):
-            pass
+            reg['A'][0] = flags['C']
+            flags ['C'] = reg['A'][7]
+            for i in range(7,0,-1):
+                reg['A'][i-1] = reg['A'][i]
 
         # CMP R/M
         # Compare the data in register R or memory location M with the data in the 
