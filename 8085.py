@@ -881,7 +881,29 @@ if __name__ == '__main__':
         # However, the accumulator retains its earlier value and not the difference.
 
         elif(p[0] == "CMP"):
-            pass
+            temp = reg['A']
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                a = int (reg[p[1]] , 2)
+                b = int(reg['A'] ,2)
+                if a == b:
+                    flags['Z'] = 1
+                elif a > b:
+                    flags['C'] = 1
+                elif a < b:
+                    flags['C'] =0
+            elif p[1] == "M":
+                a = int (memory[int(reg['H'] + reg['L'], 2)] , 2)
+                b = int(reg['A'] ,2)
+                if a == b:
+                    flags['Z'] = 1
+                elif a > b:
+                    flags['C'] = 1
+                elif a < b:
+                    flags['C'] =0
+                    
+            reg['A'] = temp 
+                    
+            
 
         # CPI 8-bit
         # Compare the second byte of the instruction with the data in the accumulator 
@@ -896,19 +918,29 @@ if __name__ == '__main__':
         # (iii) A<data, then CY flag is set.
 
         elif(p[0] == "CPI"):
-            pass
+            a = bin(int(p[1] , 16)).lstrip("-0b").zfill(8)
+            b = int(reg['A'] ,2)
+                if a == b:
+                    flags['Z'] = 1
+                elif a > b:
+                    flags['C'] = 1
+                elif a < b:
+                    flags['C'] =0
 
         # CMC
         # Complement the CY flag bit. No other flag is modified.
 
         elif(p[0] == "CMC"):
-            pass
+            if flags['C'] == 1:
+                flags['C'] =0
+            elif flags['C'] == 0:
+                flags['C'] = 1
 
         # STC
         # Set the CY flag. No other flag is modified.
 
         elif(p[0] == "STC"):
-            pass
+            flags['C'] = 1
 
         # DAA
         # Decimal Adjust Accumulator. 
