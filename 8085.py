@@ -53,23 +53,23 @@ def binadd (a,b,flags):
 def comp (a):
     for i in range(8):
         if a[i] == "0":
-              a[i] ="1" 
+            a[i] ="1" 
         elif a[i] == "1":
-              a[i] = "0"
+            a[i] = "0"
     carry = 0
     for i in range(7,-1,-1):
         if a[i] == "0" and carry == 0:
-              a[i] = 0
-              carry =0 
+            a[i] = 0
+            carry =0 
         elif a[i] == "1" and carry == 1:
-              a[i] =1
-              carry = 0
+            a[i] =1
+            carry = 0
         elif a[i] == "1" and carry == 1:
-              a[i] = 0
-              carry =1
+            a[i] = 0
+            carry =1
         elif a[i] == "0" and carry ==1 :
-              a[i] = 1
-              carry = 0
+            a[i] = 1
+            carry = 0
     return a
               
               
@@ -175,9 +175,13 @@ if __name__ == '__main__':
 
         elif(p[0] == "LXI"):
 
-            if(p[1] in ['B', 'D', 'H']):
-                reg[p[1]] = p[3][0-2]
-                reg[chr(ord(p[1])+1)] = p[3][2-4]
+            if(p[1] in ['B', 'D']):
+                reg[p[1]] = hexToBin(p[3][0-2])
+                reg[chr(ord(p[1])+1)] = hexToBin(p[3][2-4])
+            
+            elif(p[1] == "H"):
+                reg['H'] = hexToBin(p[3][0-2])
+                reg['L'] = hexToBin(p[3][2-4])                
 
         # LDAX Rp  (LOAD accumulator indirect) [A] <-- [[rp]]
         # Here Rp can be any one of the register pairs BC or DE.
@@ -189,7 +193,8 @@ if __name__ == '__main__':
         # specified by the register pair BC.
 
         elif(p[0] == "LDAX"):
-            pass
+            if(p[1] in ['B', 'D']):
+                reg['A'] = memory[int(reg[p[1]]+reg[chr(ord(p[1])+1)], 2)]
 
         # STAX Rp  (Store accumulator indirect) [[rp]] <-- [A]
         # Here Rp can be any one of the register pairs BC or DE.
@@ -200,7 +205,8 @@ if __name__ == '__main__':
         # 16-bit address is specified by the register pair DE.
 
         elif(p[0] == "STAX"):
-            pass
+            if(p[1] in ['B', 'D']):
+                memory[int(reg[p[1]]+reg[chr(ord(p[1])+1)], 2)] = reg['A']
 
         # LDA 16-bit  (Load Accumulator direct) [A] <-- [addr]
         # Three byte, Direct addressing mode
@@ -210,7 +216,7 @@ if __name__ == '__main__':
         # location 207DH. 
 
         elif(p[0] == "LDA"):
-            pass
+            reg['A'] = memory[eval("0x"+p[1])]
 
         # STA 16-bit  (Store accumulator direct). [addr] <-- [A].
         # Three byte, Direct addressing mode
@@ -219,7 +225,7 @@ if __name__ == '__main__':
         # STA 20B4H will store the accumulator data byte in the memory location 20B4H. 
 
         elif(p[0] == "STA"):
-            pass
+            memory[eval("0x"+p[1])] = reg['A']
 
         # LHLD 16-bit  (Load H-L pair direct). [L] <-- [addr], [H] <-- [addr+1].
         # Three byte instruction
@@ -228,7 +234,8 @@ if __name__ == '__main__':
         # No flags are modified.
 
         elif(p[0] == "LHLD"):
-            pass
+            reg['L'] =  memory[eval("0x"+p[1])]
+            reg['H'] =  memory[eval("0x"+p[1])+1]
 
         # SHLD 16-bit  (Store H-L pair direct) [addr] <-- [L], [addr+1] <-- [H].
         # Three byte instruction.
@@ -237,7 +244,9 @@ if __name__ == '__main__':
         # flags are modified.
 
         elif(p[0] == "SHLD"):
-            pass
+            memory[eval("0x"+p[1])] = reg['L']
+            memory[eval("0x"+p[1])+1] = reg['H']
+
 
         # PCHL
         # One byte instruction.
@@ -261,7 +270,12 @@ if __name__ == '__main__':
         # No flags are modified.
 
         elif(p[0] == "XCHG"):
-            pass
+            temp_h = reg['H']
+            temp_l = reg['L']
+            reg['H'] = reg['D']
+            reg['L'] = reg['E']
+            reg['D'] = temp_h
+            reg['E'] = temp_l
 
         # XTHL  (Exchange stack-top with H-L)
         # One byte instruction.
@@ -312,10 +326,9 @@ if __name__ == '__main__':
 
         elif(p[0] == "ADD"):
             if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                reg['A'] = binadd(reg['A'] , reg[p[1]] ,flags)
+                reg['A'] = binadd(reg['A'], reg[p[1]], flags)
             elif(p[1] == "M"):
-                reg['A"] = binadd(reg['A'],memory[int(reg['H'] + reg['L'], 2)],flags)
-                
+                reg['A'] = binadd(reg['A'], memory[int(reg['H']+reg['L'], 2)], flags)                
 
         # ADI 8-bit  (Add immediate data to accumulator) [A] <-- [A] + data.
         # Two byte, Immediate addressing mode
@@ -324,8 +337,8 @@ if __name__ == '__main__':
         # data conditions of the result in the accumulator.
 
         elif(p[0] == "ADI"):
-              a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
-              reg['A'] = binadd(reg['A'] , a, flags)
+            temp_a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
+            reg['A'] = binadd(reg['A'], temp_a, flags)
                 
 
         # ADC R/M  (Add register/memory with carry to accumulator). [A] <-- [A] + [r]/[[H-L]] + [CS]
@@ -335,16 +348,17 @@ if __name__ == '__main__':
         # accumulator. All flags are affected.
 
         elif(p[0] == "ADC"):
-              if flags['C'] == 1:
-                    tc = "00000001"
-              else :
-                    tc = "00000000"
-              if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']): 
-                  reg['A'] = binadd(reg['A'] , reg[p[1]] , flags)
-                  reg['A'] = binadd(reg['A'] , tc , flags)
-              elif p[1] == "M":
-                  reg['A'] = binadd(reg['A'] , memory[int(reg['H'] + reg['L'], 2)] , flags)
-                  reg['A'] = binadd(reg['A'] , tc , flags)
+            if flags['C'] == 1:
+                tc = "00000001"
+            else :
+                tc = "00000000"
+            
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']): 
+                reg['A'] = binadd(reg['A'] , reg[p[1]] , flags)
+                reg['A'] = binadd(reg['A'] , tc , flags)
+            elif p[1] == "M":
+                reg['A'] = binadd(reg['A'] , memory[int(reg['H'] + reg['L'], 2)] , flags)
+                reg['A'] = binadd(reg['A'] , tc , flags)
                 
             
 
@@ -354,71 +368,82 @@ if __name__ == '__main__':
         # the result in accumulator. All flags are affected.
 
         elif(p[0] == "ACI"):
-           if flags['C'] == 1:
-               tc = "00000001"
-           else :
-               tc = "00000000"
-           a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
-           reg['A'] = binadd(reg['A'] , a, flags)
-           reg['A'] = binadd(reg['A'] , tc , flags)
+            
+            if flags['C'] == 1:
+                tc = "00000001"
+            else :
+                tc = "00000000"
+           
+            temp_a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
+            reg['A'] = binadd(reg['A'], temp_a, flags)
+            reg['A'] = binadd(reg['A'], tc , flags)
                    
 
-        # SUB R  (Subtract register from accumulator). [A] <-- [A] – [r].
+        # SUB R  (Subtract register from accumulator). [A] <-- [A] - [r].
         # One byte, Register addressing mode
         #
-        # SUB M  (Subtract memory from accumulator). [A] <-- [A] – [[H-L]].
+        # SUB M  (Subtract memory from accumulator). [A] <-- [A] - [[H-L]].
         # Indirect addressing mode    
         #       Subtract the data in a memory location whose address is present in
         # the register pair HL with the data in the accumulator and store the result 
         # in the accumulator. All flags are affected.
 
         elif(p[0] == "SUB"):
-           if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                a = comp (reg[p[1]])
-                reg['A'] = binadd(reg['A'] , a , flags)
-           elif p[1] == "M":
-                a= comp(memory[int(reg['H'] + reg['L'], 2)])
-                reg['A'] = binadd(reg['A'] , a, flags)
+            
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
+                temp_a = comp(reg[p[1]])
+                reg['A'] = binadd(reg['A'], temp_a, flags)
+            
+            elif p[1] == "M":
+                temp_a = comp(memory[int(reg['H'] + reg['L'], 2)])
+                reg['A'] = binadd(reg['A'], temp_a, flags)
             
 
-        # SUI 8-bit  (Subtract immediate data from accumulator) [A] <-- [A] – data.
+        # SUI 8-bit  (Subtract immediate data from accumulator) [A] <-- [A] - data.
         # Two byte, Immediate addressing mode
 
         elif(p[0] == "SUI"):
-            a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
-            b= comp(a)
-            reg['A'] = binadd(reg['A'] , b, flags)
+            temp_a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
+            temp_b = comp(temp_a)
+            reg['A'] = binadd(reg['A'] , temp_b, flags)
             
 
-        # SBB R/M  (Subtract register/memory from accumulator with borrow). [A] <-- [A] – [r]/[[H-L]] – [CS].
+        # SBB R/M  (Subtract register/memory from accumulator with borrow). [A] <-- [A] - [r]/[[H-L]] - [CS].
         # One byte instruction.
         #       Subtract the data in register R or memory location M along with the bit
         # in carry flag (borrow) from the data in the accumulator and store the result 
         # in the accumulator. All flags are affected.
 
         elif(p[0] == "SBB"):
+            
             if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                a = comp (reg[p[1]])
+                temp_a = comp(reg[p[1]])
             elif p[1] == "M":
-                a= comp(memory[int(reg['H'] + reg['L'], 2)])
+                temp_a = comp(memory[int(reg['H'] + reg['L'], 2)])
+            
             if flags['C'] == 0:
-                b = comp ("00000000")
+                temp_b = comp("00000000")
             else :
-                b = comp ("00000001")
-            reg['A'] = binadd(reg['A'] , a , flags)
-            reg['A'] = binadd(reg['A'] , b , flags)
-        # SBI 8-bit  (Subtract immediate data from accumulator with borrow). [A] <-- [A] – data – [CS].
+                temp_b = comp("00000001")
+            
+            reg['A'] = binadd(reg['A'], temp_a, flags)
+            reg['A'] = binadd(reg['A'], temp_b, flags)
+        
+        
+        # SBI 8-bit  (Subtract immediate data from accumulator with borrow). [A] <-- [A] - data - [CS].
         # Two byte instruction.
 
         elif(p[0] == "SBI"):
-            a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
-            b = comp (a)
+            temp_a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
+            temp_b = comp(temp_a)
+            
             if flags['C'] == 0:
-                c = comp ("00000000")
+                temp_c = comp("00000000")
             else :
-                c = comp ("00000001")
-            reg['A'] = binadd(reg['A'] , b , flags)
-            reg['A'] = binadd(reg['A'] , c, flags)
+                temp_c = comp("00000001")
+            
+            reg['A'] = binadd(reg['A'], temp_b, flags)
+            reg['A'] = binadd(reg['A'], temp_c, flags)
 
         # INR R/M, DCR R/M  ([r] <-- [r] + 1, [[H-L]] <-- [[H-L]] + 1)
         # One byte, Register/Indirect addressing mode
@@ -427,45 +452,73 @@ if __name__ == '__main__':
         # These instructions affect all flags except the Carry flag.
 
         elif(p[0] == "INR"):
-            temp = flags ['C']
+            temp_c = flags['C']
+            
             if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                reg[p[1]] = binadd(reg[p[1]] , "00000001" , flags)
+                reg[p[1]] = binadd(reg[p[1]], "00000001", flags)
             elif p[1] == 'M':
-                memory[int(reg['H'] + reg['L'], 2)] = binadd(memory[int(reg['H'] + reg['L'], 2)] , "00000001" , flags)
-            flags['C'] = temp
+                memory[int(reg['H'] + reg['L'], 2)] = binadd(memory[int(reg['H'] + reg['L'], 2)], "00000001", flags)
+            
+            flags['C'] = temp_c
+        
+        elif(p[0] == "DCR"):
+            temp_c = flags['C']
+            temp_a = comp("00000001")
+            
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):               
+                reg[p[1]] = binadd(reg[p[1]], temp_a, flags)
+            elif p[1] == 'M':
+                memory[int(reg['H'] + reg['L'], 2)] = binadd(memory[int(reg['H'] + reg['L'], 2)], temp_a, flags)
+            
+            flags['C'] = temp_c        
                 
 
-        # INX Rp, DCX Rp  (   [rp] <-- [rp] – 1, [rp] <-- [rp] - 1)
+        # INX Rp, DCX Rp  ([rp] <-- [rp] - 1, [rp] <-- [rp] - 1)
         # One byte, Register addressing mode
         # Increment/decrement the data in the register pair Rp by 1. 
         # These instructions do not affect the flags.
 
         elif(p[0] == "INX"):
-            temp1= flags['C']
-            temp2 = flags["AC"]
-            temp3 = flags ['P']
-            temp4 = flags['Z']
-            temp5 = flags['S']
+            temp_flags = dict(flags)
+            
             if p[1] == 'B':
-                reg['C'] = binadd(reg['C'] , "00000001" , flags)
+                reg['C'] = binadd(reg['C'], "00000001", flags)
                 if flags['C'] == 1:
-                    reg['B'] = binadd(reg['B'] , "00000001" , flags)
+                    reg['B'] = binadd(reg['B'], "00000001", flags)
                     
             elif p[1] == 'D':
-                reg['E'] = binadd(reg['E'] , "00000001" , flags)
+                reg['E'] = binadd(reg['E'], "00000001", flags)
                 if flags['C'] == 1:
-                    reg['D'] = binadd(reg['D'] , "00000001" , flags)
+                    reg['D'] = binadd(reg['D'], "00000001", flags)
                     
             elif p[1] == 'H':
-                reg['L'] = binadd(reg['L'] , "00000001" , flags)
+                reg['L'] = binadd(reg['L'], "00000001", flags)
                 if flags['C'] == 1:
-                    reg['H'] = binadd(reg['H'] , "00000001" , flags)
-            flags['C'] = temp1
-            flags ['AC'] =temp2
-            flags['p'] = temp3
-            flags['Z'] = temp4
-            flags['S'] = temp5 
-             
+                    reg['H'] = binadd(reg['H'], "00000001", flags)
+            
+            flags = dict(temp_flags)
+        
+        
+        elif(p[0] == "DCX"):
+            temp_flags = dict(flags)
+            temp_a = comp("00000001")
+            
+            if p[1] == 'B':
+                reg['C'] = binadd(reg['C'], temp_a, flags)
+                if flags['C'] == 1:
+                    reg['B'] = binadd(reg['B'], "00000001", flags)
+                    
+            elif p[1] == 'D':
+                reg['E'] = binadd(reg['E'], temp_a, flags)
+                if flags['C'] == 1:
+                    reg['D'] = binadd(reg['D'], "00000001", flags)
+                    
+            elif p[1] == 'H':
+                reg['L'] = binadd(reg['L'], temp_a, flags)
+                if flags['C'] == 1:
+                    reg['H'] = binadd(reg['H'], "00000001", flags)
+            
+            flags = dict(temp_flags)           
             
 
         # DAD Rp
@@ -479,29 +532,29 @@ if __name__ == '__main__':
             temp2 = flags['P']
             temp3 = flags['S'] 
             temp4 = flags['Z']
-            if p[1] == 'B':
-                reg['L'] = binadd(reg['L'] , reg['C'] , flags)
-                hello = flags['C'] 
-                reg['H'] = binadd(reg['H'] , reg['B'] , flags)
-                reg['H'] = binadd(reg['H'] , hello , flags )
             
-             if p[1] == 'D':
-                reg['L'] = binadd(reg['L'] , reg['E'] , flags)
-                hello = flags['C'] 
-                reg['H'] = binadd(reg['H'] , reg['D'] , flags)
-                reg['H'] = binadd(reg['H'] , hello , flags )
+            if p[1] == 'B':
+                reg['L'] = binadd(reg['L'], reg['C'], flags)
+                temp_c = flags['C'] 
+                reg['H'] = binadd(reg['H'], reg['B'], flags)
+                reg['H'] = binadd(reg['H'], hello, flags)
+            
+            if p[1] == 'D':
+                reg['L'] = binadd(reg['L'], reg['E'], flags)
+                temp_c = flags['C'] 
+                reg['H'] = binadd(reg['H'], reg['D'], flags)
+                reg['H'] = binadd(reg['H'], hello, flags)
                     
-             if p[1] == 'H':
-                reg['L'] = binadd(reg['L'] , reg['L'] , flags)
-                hello = flags['C'] 
-                reg['H'] = binadd(reg['H'] , reg['H'] , flags)
-                reg['H'] = binadd(reg['H'] , hello , flags )
-                
+            if p[1] == 'H':
+                reg['L'] = binadd(reg['L'], reg['L'], flags)
+                temp_c = flags['C'] 
+                reg['H'] = binadd(reg['H'], reg['H'], flags)
+                reg['H'] = binadd(reg['H'], hello, flags)               
                     
-             flags['AC'] = temp1
-             flags['P'] = temp2
-             flags['S'] = temp3
-             flags['Z'] = temp4
+            flags['AC'] = temp1
+            flags['P'] = temp2
+            flags['S'] = temp3
+            flags['Z'] = temp4
 
 
 
@@ -513,70 +566,49 @@ if __name__ == '__main__':
         # ANA R/M  (AND register/memory with accumulator) [A] <-- [A] ^ [r]/[[H-L]].
         # One byte instruction.
         # Logically AND the data in register R or memory location M with the data in the 
-        # accumulator and store the result in the accumulator. A
-        # ll flags except CY and AC are modified reflecting the data conditions of the 
+        # accumulator and store the result in the accumulator.
+        # All flags except CY and AC are modified reflecting the data conditions of the 
         # result in the accumulator. 
         # CY flag is reset and AC flag is set. 
 
         elif(p[0] == "ANA"):
+            temp_a = reg['A']
+            
             if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                a = reg['A']
-                b = reg[p[1]]
-                for i in range(8):
-                    if a[i] == '0' and b[i] == '0':
-                        a[i]  = '0'
-                    
-                    if a[i] == '1' and b[i] == '0':
-                        a[i]  = '0'
-                    
-                    if a[i] == '0' and b[i] == '1':
-                        a[i]  = '0'
-             
-                    if a[i] == '1' and b[i] == '1':
-                        a[i]  = '1'
-                    
-                    
-                reg['A'] = a
-                    
-            elif p[1] == 'M':
-                    
-                a = reg['A']
-                b = memory[int(reg['H'] + reg['L'], 2)]
-                for i in range(8):
-                    if a[i] == '0' and b[i] == '0':
-                        a[i]  = '0'
-                    
-                    if a[i] == '1' and b[i] == '0':
-                        a[i]  = '0'
-                    
-                    if a[i] == '0' and b[i] == '1':
-                        a[i]  = '0'
-             
-                    if a[i] == '1' and b[i] == '1':
-                        a[i]  = '1'
-                    
-                    
-                reg['A'] = a
+                temp_b = reg[p[1]]
+            elif p[1] == 'M':       
+                temp_b = memory[int(reg['H'] + reg['L'], 2)]            
                 
+            for i in range(8):
+                if temp_a[i] == '0' and temp_b[i] == '0':
+                    temp_a[i]  = '0'
                     
+                elif temp_a[i] == '1' and temp_b[i] == '0':
+                    temp_a[i]  = '0'
+                    
+                elif temp_a[i] == '0' and temp_b[i] == '1':
+                    temp_a[i]  = '0'
+             
+                elif temp_a[i] == '1' and temp_b[i] == '1':
+                    temp_a[i]  = '1'                   
+                    
+            reg['A'] = temp_a                    
                     
             flag['C'] = 0
             flag['AC'] = 1
                     
-            if int (reg['A'] , 2) == 0:
-                    flag['Z'] = 1
+            if int(reg['A'] , 2) == 0:
+                flag['Z'] = 1
             if reg['A'][0] == 1:
-                    flag['S'] =1
-            no1=0
-            for i in range(8):
-                    if reg['A'][i] == 1:
-                        no1+=1
-            if no1 %2 ==0 :
-                    flags['P'] = 1
-                   
-                    
+                flag['S'] = 1
             
-                    
+            no1=0
+            
+            for i in range(8):
+                if reg['A'][i] == 1:
+                    no1+=1
+            if no1 % 2 == 0 :
+                flags['P'] = 1                    
 
         # ANI 8-bit
         # Two byte instruction.
@@ -587,38 +619,41 @@ if __name__ == '__main__':
         # CY flag is reset and AC flag is set.
 
         elif(p[0] == "ANI"):
-            a = int (p[1] , 16)
-            b = bin(a).lstrip("-0b").zfill(8)
-            x = reg['A']
+            temp_a = int(p[1] , 16)
+            temp_b = bin(temp_a).lstrip("-0b").zfill(8)            
+            temp_x = reg['A']
+            
             for i in range(8):
-                    if x[i] == '0' and b[i] == '0':
-                        x[i]  = '0'
+                if temp_x[i] == '0' and temp_b[i] == '0':
+                    temp_x[i] = '0'
                     
-                    if x[i] == '1' and b[i] == '0':
-                        x[i]  = '0'
+                elif temp_x[i] == '1' and temp_b[i] == '0':
+                    temp_x[i] = '0'
                     
-                    if x[i] == '0' and b[i] == '1':
-                        x[i]  = '0'
+                elif temp_x[i] == '0' and temp_b[i] == '1':
+                    temp_x[i] = '0'
              
-                    if x[i] == '1' and b[i] == '1':
-                        x[i]  = '1'
+                elif temp_x[i] == '1' and temp_b[i] == '1':
+                    temp_x[i] = '1'
                     
                     
-            reg['A'] = x 
-                    
+            reg['A'] = temp_x                     
             flag['C'] = 0
             flag['AC'] = 1
                     
-            if int (reg['A'] , 2) == 0:
-                    flag['Z'] = 1
+            if int(reg['A'] , 2) == 0:
+                flag['Z'] = 1
             if reg['A'][0] == 1:
-                    flag['S'] =1
+                flag['S'] = 1
+            
             no1=0
+            
             for i in range(8):
-                    if reg['A'][i] == 1:
-                        no1+=1
-            if no1 %2 ==0 :
-                    flags['P'] = 1
+                if reg['A'][i] == 1:
+                    no1+=1
+            
+            if no1 % 2 == 0 :
+                flags['P'] = 1
                 
 
         # ORA R/M
@@ -626,101 +661,83 @@ if __name__ == '__main__':
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "ORA"):
+            temp_a = reg['A']
+            
             if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                a = reg['A']
-                b = reg[p[1]]
-                for i in range(8):
-                    if a[i] == '0' and b[i] == '0':
-                        a[i]  = '0'
-                    
-                    if a[i] == '1' and b[i] == '0':
-                        a[i]  = '1'
-                    
-                    if a[i] == '0' and b[i] == '1':
-                        a[i]  = '1'
-             
-                    if a[i] == '1' and b[i] == '1':
-                        a[i]  = '1'
-                    
-                    
-                reg['A'] = a
-                    
-            elif p[1] == 'M':
-                    
-                a = reg['A']
-                b = memory[int(reg['H'] + reg['L'], 2)]
-                for i in range(8):
-                    if a[i] == '0' and b[i] == '0':
-                        a[i]  = '0'
-                    
-                    if a[i] == '1' and b[i] == '0':
-                        a[i]  = '1'
-                    
-                    if a[i] == '0' and b[i] == '1':
-                        a[i]  = '1'
-             
-                    if a[i] == '1' and b[i] == '1':
-                        a[i]  = '1'
-                    
-                    
-                reg['A'] = a
+                temp_b = reg[p[1]]
+            elif p[1] == 'M':        
+                temp_b = memory[int(reg['H'] + reg['L'], 2)]
                 
+            for i in range(8):
+                if temp_a[i] == '0' and temp_b[i] == '0':
+                    temp_a[i]  = '0'
+                
+                elif temp_a[i] == '1' and temp_b[i] == '0':
+                    temp_a[i]  = '1'
+                
+                elif temp_a[i] == '0' and temp_b[i] == '1':
+                    temp_a[i]  = '1'
+         
+                elif temp_a[i] == '1' and temp_b[i] == '1':
+                    temp_a[i]  = '1'                   
                     
-                    
+            reg['A'] = temp_a               
             flag['C'] = 0
             flag['AC'] = 0
                     
-            if int (reg['A'] , 2) == 0:
-                    flag['Z'] = 1
+            if int(reg['A'] , 2) == 0:
+                flag['Z'] = 1
             if reg['A'][0] == 1:
-                    flag['S'] =1
+                flag['S'] = 1
+            
             no1=0
+            
             for i in range(8):
-                    if reg['A'][i] == 1:
-                        no1+=1
-            if no1 %2 ==0 :
-                    flags['P'] = 1
-                    
-            
-            
+                if reg['A'][i] == 1:
+                    no1+=1
+            if no1 % 2 == 0 :
+                flags['P'] = 1       
 
         # ORI 8-bit
         # All flags except CY and AC are modified reflecting the data conditions of the result in the accumulator. 
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "ORI"):
-            a = int (p[1] , 16)
-            b = bin(a).lstrip("-0b").zfill(8)
-            x = reg['A']
+            temp_a = int(p[1] , 16)
+            temp_b = bin(temp_a).lstrip("-0b").zfill(8)
+            temp_x = reg['A']
+            
             for i in range(8):
-                    if x[i] == '0' and b[i] == '0':
-                        x[i]  = '0'
+                if temp_x[i] == '0' and temp_b[i] == '0':
+                    temp_x[i]  = '0'
                     
-                    if x[i] == '1' and b[i] == '0':
-                        x[i]  = '1'
+                elif temp_x[i] == '1' and temp_b[i] == '0':
+                    temp_x[i]  = '1'
                     
-                    if x[i] == '0' and b[i] == '1':
-                        x[i]  = '1'
+                elif temp_x[i] == '0' and temp_b[i] == '1':
+                    temp_x[i]  = '1'
              
-                    if x[i] == '1' and b[i] == '1':
-                        x[i]  = '1'
+                elif temp_x[i] == '1' and temp_b[i] == '1':
+                    temp_x[i]  = '1'                  
                     
-                    
-            reg['A'] = x 
+            reg['A'] = temp_x 
                     
             flag['C'] = 0
             flag['AC'] = 0
                     
-            if int (reg['A'] , 2) == 0:
-                    flag['Z'] = 1
+            if int(reg['A'] , 2) == 0:
+                flag['Z'] = 1
             if reg['A'][0] == 1:
-                    flag['S'] =1
-            no1=0
+                flag['S'] = 1
+            
+            no1 = 0
+            
             for i in range(8):
-                    if reg['A'][i] == 1:
-                        no1+=1
-            if no1 %2 ==0 :
-                    flags['P'] = 1
+                if reg['A'][i] == 1:
+                    no1+=1
+            
+            if no1 % 2 == 0 :
+                flags['P'] = 1
                 
 
         # XRA R/M
@@ -728,98 +745,84 @@ if __name__ == '__main__':
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "XRA"):
+            temp_a = reg['A']
+            
             if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                a = reg['A']
-                b = reg[p[1]]
-                for i in range(8):
-                    if a[i] == '0' and b[i] == '0':
-                        a[i]  = '0'
-                    
-                    if a[i] == '1' and b[i] == '0':
-                        a[i]  = '1'
-                    
-                    if a[i] == '0' and b[i] == '1':
-                        a[i]  = '1'
-             
-                    if a[i] == '1' and b[i] == '1':
-                        a[i]  = '0'
-                    
-                    
-                reg['A'] = a
-                    
-            elif p[1] == 'M':
-                    
-                a = reg['A']
-                b = memory[int(reg['H'] + reg['L'], 2)]
-                for i in range(8):
-                    if a[i] == '0' and b[i] == '0':
-                        a[i]  = '0'
-                    
-                    if a[i] == '1' and b[i] == '0':
-                        a[i]  = '1'
-                    
-                    if a[i] == '0' and b[i] == '1':
-                        a[i]  = '1'
-             
-                    if a[i] == '1' and b[i] == '1':
-                        a[i]  = '0'
-                    
-                    
-                reg['A'] = a
+                temp_b = reg[p[1]]
+            elif p[1] == 'M':        
+                temp_b = memory[int(reg['H'] + reg['L'], 2)]            
                 
-                    
-                    
+            for i in range(8):
+                if temp_a[i] == '0' and temp_b[i] == '0':
+                    temp_a[i]  = '0'
+                
+                elif temp_a[i] == '1' and temp_b[i] == '0':
+                    temp_a[i]  = '1'
+                
+                elif temp_a[i] == '0' and temp_b[i] == '1':
+                    temp_a[i]  = '1'
+         
+                elif temp_a[i] == '1' and temp_b[i] == '1':
+                    temp_a[i]  = '0'
+                                       
+                reg['A'] = temp_a                   
+            
             flag['C'] = 0
             flag['AC'] = 0
                     
-            if int (reg['A'] , 2) == 0:
-                    flag['Z'] = 1
+            if int(reg['A'], 2) == 0:
+                flag['Z'] = 1
             if reg['A'][0] == 1:
-                    flag['S'] =1
+                flag['S'] = 1
+            
             no1=0
+            
             for i in range(8):
-                    if reg['A'][i] == 1:
-                        no1+=1
-            if no1 %2 ==0 :
-                    flags['P'] = 1
+                if reg['A'][i] == 1:
+                    no1+=1
+            
+            if no1 % 2 == 0 :
+                flags['P'] = 1
 
         # XRI 8-bit
         # All flags except CY and AC are modified reflecting the data conditions of the result in the accumulator. 
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "XRI"):
-            a = int (p[1] , 16)
-            b = bin(a).lstrip("-0b").zfill(8)
-            x = reg['A']
+            temp_a = int (p[1] , 16)
+            temp_b = bin(temp_a).lstrip("-0b").zfill(8)
+            temp_x = reg['A']
+            
             for i in range(8):
-                    if x[i] == '0' and b[i] == '0':
-                        x[i]  = '0'
+                if temp_x[i] == '0' and temp_b[i] == '0':
+                    temp_x[i]  = '0'
                     
-                    if x[i] == '1' and b[i] == '0':
-                        x[i]  = '1'
+                elif temp_x[i] == '1' and temp_b[i] == '0':
+                    temp_x[i]  = '1'
                     
-                    if x[i] == '0' and b[i] == '1':
-                        x[i]  = '1'
+                elif temp_x[i] == '0' and temp_b[i] == '1':
+                    temp_x[i]  = '1'
              
-                    if x[i] == '1' and b[i] == '1':
-                        x[i]  = '0'
+                elif temp_x[i] == '1' and temp_b[i] == '1':
+                    temp_x[i]  = '0'                  
                     
-                    
-            reg['A'] = x 
+            reg['A'] = temp_x 
                     
             flag['C'] = 0
             flag['AC'] = 0
                     
-            if int (reg['A'] , 2) == 0:
-                    flag['Z'] = 1
+            if int(reg['A'], 2) == 0:
+                flag['Z'] = 1
             if reg['A'][0] == 1:
-                    flag['S'] =1
+                flag['S'] = 1
+            
             no1=0
+            
             for i in range(8):
-                    if reg['A'][i] == 1:
-                        no1+=1
-            if no1 %2 ==0 :
-                    flags['P'] = 1
+                if reg['A'][i] == 1:
+                    no1+=1
+            if no1 % 2 == 0 :
+                flags['P'] = 1
 
         # CMA
         # One byte instruction.
@@ -831,15 +834,17 @@ if __name__ == '__main__':
                     reg['A'][i] = 1
                 elif reg['A'][i] == 1:
                     reg['A'][i] = 0
-
+            
         # RLC  (Rotate accumulator left) [An+1] <-- [An], [A0] <-- [A7],[CS] <-- [A7]
         # Rotate each bit in the accumulator by one position to the left with the MSB 
         # shifting to the LSB position as well as to the CY flag.
 
         elif(p[0] == "RLC"):
-            flags ['C'] = reg['A'][0]
+            flags['C'] = reg['A'][0]
+            
             for i in range(0,7):
                 reg['A'][i] = reg['A'][i+1]
+            
             reg['A'][7] = flags['C']
 
         # RAL  (Rotate accumulator left through carry) [An+1] <-- [An], [CS] <-- [A7], [A0] <-- [CS].
@@ -848,7 +853,7 @@ if __name__ == '__main__':
 
         elif(p[0] == "RAL"):
             reg['A'][7] = flags['C']
-            flags ['C'] = reg['A'][0]
+            flags['C'] = reg['A'][0]
             for i in range(0,7):
                 reg['A'][i] = reg['A'][i+1]
             
@@ -858,7 +863,7 @@ if __name__ == '__main__':
         # shifting to the MSB position as well as to the CY flag.
 
         elif(p[0] == "RRC"):
-            flags ['C'] = reg['A'][7]
+            flags['C'] = reg['A'][7]
             for i in range(7,0,-1):
                 reg['A'][i-1] = reg['A'][i]
             reg['A'][0] = flags['C']
@@ -870,7 +875,7 @@ if __name__ == '__main__':
 
         elif(p[0] == "RAR"):
             reg['A'][0] = flags['C']
-            flags ['C'] = reg['A'][7]
+            flags['C'] = reg['A'][7]
             for i in range(7,0,-1):
                 reg['A'][i-1] = reg['A'][i]
 
@@ -883,26 +888,25 @@ if __name__ == '__main__':
         elif(p[0] == "CMP"):
             temp = reg['A']
             if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                a = int (reg[p[1]] , 2)
-                b = int(reg['A'] ,2)
-                if a == b:
+                temp_a = int (reg[p[1]] , 2)
+                temp_b = int(reg['A'] ,2)
+                if temp_a == temp_b:
                     flags['Z'] = 1
-                elif a > b:
+                elif temp_a > temp_b:
                     flags['C'] = 1
-                elif a < b:
+                elif temp_a < temp_b:
                     flags['C'] =0
             elif p[1] == "M":
-                a = int (memory[int(reg['H'] + reg['L'], 2)] , 2)
-                b = int(reg['A'] ,2)
-                if a == b:
+                temp_a = int (memory[int(reg['H'] + reg['L'], 2)] , 2)
+                temp_b = int(reg['A'] ,2)
+                if temp_a == temp_b:
                     flags['Z'] = 1
-                elif a > b:
+                elif temp_a > temp_b:
                     flags['C'] = 1
-                elif a < b:
+                elif temp_a < temp_b:
                     flags['C'] =0
                     
-            reg['A'] = temp 
-                    
+            reg['A'] = temp
             
 
         # CPI 8-bit
@@ -918,14 +922,14 @@ if __name__ == '__main__':
         # (iii) A<data, then CY flag is set.
 
         elif(p[0] == "CPI"):
-            a = bin(int(p[1] , 16)).lstrip("-0b").zfill(8)
-            b = int(reg['A'] ,2)
-                if a == b:
-                    flags['Z'] = 1
-                elif a > b:
-                    flags['C'] = 1
-                elif a < b:
-                    flags['C'] =0
+            temp_a = bin(int(p[1] , 16)).lstrip("-0b").zfill(8)
+            temp_b = int(reg['A'] ,2)
+            if temp_a == temp_b:
+                flags['Z'] = 1
+            elif temp_a > temp_b:
+                flags['C'] = 1
+            elif temp_a < temp_b:
+                flags['C'] =0
 
         # CMC
         # Complement the CY flag bit. No other flag is modified.
