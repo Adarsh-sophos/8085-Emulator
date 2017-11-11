@@ -1,0 +1,17 @@
+// Count number of one’s in a number
+// Statement: Write a program to count number of l’s in the contents of D register and store the count in the B register.
+
+// Sample problem
+// [D] =  A9H
+// Result = [B] = 04H
+
+MVI B, 00
+MVI C, 08
+MVI D, A9
+MOV A, D
+BACK: RAR
+JNC SKIP
+INR B
+SKIP: DCR C
+JNZ BACK
+HLT

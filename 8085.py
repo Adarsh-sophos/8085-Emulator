@@ -179,15 +179,15 @@ if __name__ == '__main__':
         if(lines[i] == ""):
             continue
         
-        if(lines[i].find('//') != -1):
+        if(prnt[i].find('//') != -1):
             continue
         
-        if(':' in p):
+        if(':' in lines[i]):
             labels[p[0]] = i
             temp_a = lines[i].find(':')
             lines[i] = lines[i][temp_a+1:]
-    
-    
+            #print(lines[i])
+    print(labels)
     j = 0
     
     # tracks number of lines
@@ -205,7 +205,7 @@ if __name__ == '__main__':
             j=j+1
             continue
         
-        if(lines[j].find('//') != -1):
+        if(prnt[j].find('//') != -1):
             pq=pq+1
             j=j+1            
             continue        
@@ -945,7 +945,7 @@ if __name__ == '__main__':
             
             for i in range(0,7):
                 result += reg['A'][i+1]
-            result += temp
+            result += str(temp)
             
             reg['A'] = result
             
@@ -970,15 +970,19 @@ if __name__ == '__main__':
         # shifting to the CY flag and the CY flag bit shifting to the MSB position.
 
         elif(p[0] == "RAR"):
+            print("Hello")
             temp = flags['C']
             flags['C'] = reg['A'][7]
             result = ""
             
             for i in range(7,0,-1):
                 result = reg['A'][i-1] + result
-            result = temp + result
+            result = str(temp) + result
             
             reg['A'] = result
+            
+            print("RAR : " + str(flags['C']))
+            time.sleep(1)
 
         # CMP R/M
         # Compare the data in register R or memory location M with the data in the 
@@ -1068,7 +1072,9 @@ if __name__ == '__main__':
 
         elif(p[0] == "JMP"):
             if(labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+            else:
+                j += 1            
             continue
 
         # JC 16-bit
@@ -1076,15 +1082,26 @@ if __name__ == '__main__':
 
         elif(p[0] == "JC"):
             if(flags['C'] == 1 and labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+            else:
+                j += 1            
             continue
 
         # JNC 16-bit
         # Jump if Carry flag is not set to the 16-bit address.
 
         elif(p[0] == "JNC"):
+            print(labels.get(p[1]))
+            print(flags['C'])
+            print(labels)
             if(flags['C'] == 0 and labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+                print("inside : "+str(j))
+            else:
+                j += 1
+            print(j)
+            print("JNC : " + str(flags['C']))
+            time.sleep(2)
             continue
 
         # JZ 16-bit
@@ -1092,7 +1109,9 @@ if __name__ == '__main__':
 
         elif(p[0] == "JZ"):
             if(flags['Z'] == 1 and labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+            else:
+                j += 1            
             continue
 
         # JNZ 16-bit
@@ -1100,7 +1119,11 @@ if __name__ == '__main__':
 
         elif(p[0] == "JNZ"):
             if(flags['Z'] == 0 and labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+            else:
+                j += 1            
+            print("JNZ : " + str(flags['Z']))
+            time.sleep(2)            
             continue
 
         # JP 16-bit
@@ -1108,7 +1131,9 @@ if __name__ == '__main__':
 
         elif(p[0] == "JP"):
             if(flags['S'] == 0 and labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+            else:
+                j += 1            
             continue
 
         # JM 16-bit
@@ -1116,7 +1141,9 @@ if __name__ == '__main__':
 
         elif(p[0] == "JM"):
             if(flags['S'] == 1 and labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+            else:
+                j += 1            
             continue
 
         # JPE 16-bit
@@ -1124,7 +1151,9 @@ if __name__ == '__main__':
 
         elif(p[0] == "JPE"):
             if(flags['P'] == 1 and labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+            else:
+                j += 1            
             continue
 
         # JPO 16-bit
@@ -1132,7 +1161,9 @@ if __name__ == '__main__':
 
         elif(p[0] == "JPO"):
             if(flags['P'] == 0 and labels.get(p[1]) != None):
-                i = labels.get(p[1])
+                j = labels.get(p[1])
+            else:
+                j += 1            
             continue
 
         # CALL 16-bit
