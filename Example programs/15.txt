@@ -1,0 +1,14 @@
+// Right shift, bit of data( 8 bit and 16 bit)
+// Statement: Write a program to shift an eight bit data four bits right. Assume data is in register C.
+
+// Sample problem:
+// (4200H) = 58
+// Result = (4300H) = 05
+ 
+LDA 4200
+RAR
+RAR
+RAR
+RAR
+STA 4300
+HLT

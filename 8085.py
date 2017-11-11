@@ -148,7 +148,7 @@ if __name__ == '__main__':
     for i in range(0x0000, 0xFFFF):
         memory.append("00000000")
     
-    memory[eval('0x4200')] = hexToBin('04')
+    memory[eval('0x4200')] = hexToBin('58')
     memory[eval('0x4201')] = hexToBin('09')
     memory[eval('0x4002')] = hexToBin('15')
     memory[eval('0x4003')] = hexToBin('5c')
@@ -705,30 +705,29 @@ if __name__ == '__main__':
         elif(p[0] == "ANI"):
             temp_a = int(p[1] , 16)
             temp_b = bin(temp_a).lstrip("-0b").zfill(8)            
-            temp_x = reg['A']
+            result = ""
             
             for i in range(8):
-                if temp_x[i] == '0' and temp_b[i] == '0':
-                    temp_x[i] = '0'
+                if reg['A'][i] == '0' and temp_b[i] == '0':
+                    result += '0'
                     
-                elif temp_x[i] == '1' and temp_b[i] == '0':
-                    temp_x[i] = '0'
+                elif reg['A'][i] == '1' and temp_b[i] == '0':
+                    result += '0'
                     
-                elif temp_x[i] == '0' and temp_b[i] == '1':
-                    temp_x[i] = '0'
+                elif reg['A'][i] == '0' and temp_b[i] == '1':
+                    result += '0'
              
-                elif temp_x[i] == '1' and temp_b[i] == '1':
-                    temp_x[i] = '1'
+                elif reg['A'][i] == '1' and temp_b[i] == '1':
+                    result += '1'
                     
-                    
-            reg['A'] = temp_x                     
-            flag['C'] = 0
-            flag['AC'] = 1
+            reg['A'] = result                    
+            flags['C'] = 0
+            flags['AC'] = 1
                     
             if int(reg['A'] , 2) == 0:
-                flag['Z'] = 1
+                flags['Z'] = 1
             if reg['A'][0] == 1:
-                flag['S'] = 1
+                flags['S'] = 1
             
             no1=0
             
@@ -930,9 +929,10 @@ if __name__ == '__main__':
             result = ""
             
             for i in range(0,7):
-                reg['A'][i] = reg['A'][i+1]
+                result += reg['A'][i+1]
+            result += flags['C']
             
-            reg['A'][7] = flags['C']
+            reg['A'] = result
 
         # RAL  (Rotate accumulator left through carry) [An+1] <-- [An], [CS] <-- [A7], [A0] <-- [CS].
         # Rotate each bit in the accumulator by one position to the left with the MSB 
@@ -941,9 +941,13 @@ if __name__ == '__main__':
         elif(p[0] == "RAL"):
             temp = flags['C']
             flags['C'] = reg['A'][0]
+            result = ""
+            
             for i in range(0,7):
-                reg['A'][i] = reg['A'][i+1]
-            reg['A'][7] = temp
+                result += reg['A'][i+1]
+            result += temp
+            
+            reg['A'] = result
             
 
         # RRC  (Rotate accumulator right) [A7] <-- [A0], [CS] <-- [A0], [An] <-- [An+1]
@@ -952,9 +956,13 @@ if __name__ == '__main__':
 
         elif(p[0] == "RRC"):
             flags['C'] = reg['A'][7]
+            result = ""
+            
             for i in range(7,0,-1):
-                reg['A'][i] = reg['A'][i-1]
-            reg['A'][0] = flags['C']
+                result = reg['A'][i-1] + result
+            result = flags['C'] + result
+            
+            reg['A'] = result
             
 
         # RAR  (Rotate accumulator right through carry) [An] <-- [An+1], [CS] <-- [A0], [A7] <-- [CS] 
@@ -964,9 +972,13 @@ if __name__ == '__main__':
         elif(p[0] == "RAR"):
             temp = flags['C']
             flags['C'] = reg['A'][7]
+            result = ""
+            
             for i in range(7,0,-1):
-                reg['A'][i] = reg['A'][i-1]
-            reg['A'][0] = temp
+                result = reg['A'][i-1] + result
+            result = temp + result
+            
+            reg['A'] = result
 
         # CMP R/M
         # Compare the data in register R or memory location M with the data in the 

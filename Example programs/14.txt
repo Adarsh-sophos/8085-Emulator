@@ -1,0 +1,20 @@
+// Unpack a BCD number
+// Statement: Two digit BCD number is stored in memory location 4200H. Unpack the BCD number and store the two digits in memory locations 4300H and 4301H such that memory location 4300H will have lower BCD digit.
+
+// Sample problem:
+// (4200H) = 58
+// Result = (4300H) = 05
+// (4301H) = 08
+
+LDA 4200
+ANI F0
+// Adjust higher BCD digit as a lower digit
+RRC
+RRC
+RRC
+RRC
+STA 4300
+LDA 4200
+ANI 0F
+STA 4301
+HLT
