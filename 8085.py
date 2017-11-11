@@ -852,10 +852,11 @@ if __name__ == '__main__':
         # shifting to the CY flag and the CY flag bit shifting to the LSB position.
 
         elif(p[0] == "RAL"):
-            reg['A'][7] = flags['C']
+            temp = flags['C']
             flags['C'] = reg['A'][0]
             for i in range(0,7):
                 reg['A'][i] = reg['A'][i+1]
+            reg['A'][7] = temp
             
 
         # RRC  (Rotate accumulator right) [A7] <-- [A0], [CS] <-- [A0], [An] <-- [An+1]
@@ -865,7 +866,7 @@ if __name__ == '__main__':
         elif(p[0] == "RRC"):
             flags['C'] = reg['A'][7]
             for i in range(7,0,-1):
-                reg['A'][i-1] = reg['A'][i]
+                reg['A'][i] = reg['A'][i-1]
             reg['A'][0] = flags['C']
             
 
@@ -874,10 +875,11 @@ if __name__ == '__main__':
         # shifting to the CY flag and the CY flag bit shifting to the MSB position.
 
         elif(p[0] == "RAR"):
-            reg['A'][0] = flags['C']
+            temp = flags['C']
             flags['C'] = reg['A'][7]
             for i in range(7,0,-1):
-                reg['A'][i-1] = reg['A'][i]
+                reg['A'][i] = reg['A'][i-1]
+            reg['A'][0] = temp
 
         # CMP R/M
         # Compare the data in register R or memory location M with the data in the 
