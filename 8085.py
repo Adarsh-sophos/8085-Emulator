@@ -3,47 +3,47 @@ import time
 
 
 def binadd(a, b, flags):
-    
     '''
     Function to add two binary numbers.
     It takes input two binary strings and return the string which represents sum of numbers represented by the input strings
     '''    
     
-    result = "00000000"
+    result = ""
     carry = '0'
     no1 = 0
     
     for i in range(7,-1,-1):
         if a[i] == '0' and b[i] == '0' and carry =='0':
-            result[i] = '0'
+            result = '0' + result
             carry = '0'
         elif a[i] == '1' and b[i] == '1' and carry =='0':
-            result [i] ='0'
+            result ='0' + result
             carry = '1'
         elif a[i] == '1' and b[i] =='0' and carry == '0':
-            result [i] = '1'
+            result = '1' + result
             carry = '0'
         elif a[i] == '0' and b[i] =='1' and carry == '0':
-            result [i] = '1'
+            result = '1' + result
             carry = '0'
         elif a[i] == '1' and b[i] =='0' and carry == '1':
-            result [i] = '0'
+            result = '0' + result
             carry = '1'
         elif a[i] == '0' and b[i] =='1' and carry == '1':
-            result [i] = '0'
+            result = '0' + result
             carry = '1'
         elif a[i] == '1' and b[i] =='1' and carry == '1':
-            result [i] = '1'
+            result = '1' + result
             carry = '1'
         elif a[i] == '0' and b[i] =='0' and carry == '1':
-            result [i] = '1'
+            result = '1' + result
             carry = '0'
         
         # Auxiliary flag
         if i == 4 and carry == '1':
             flags['AC'] =1
         
-        # count number of 1's
+    # Count number of 1's
+    for i in range(8):
         if result[i] == '1':
             no1 = no1+1
     
@@ -67,7 +67,6 @@ def binadd(a, b, flags):
 
               
 def comp(a):
-    
     # Function for 2's complement of a binary number.
     
     # take 1's complement
@@ -94,7 +93,17 @@ def comp(a):
             carry = 1
     
     return a
-              
+
+
+def hexToBin(a):
+    # Converts a hexadecimal number in binary
+    
+    result = ""
+    
+    for c in a:
+        result += bin(eval('0x'+c)).lstrip("0b").zfill(4)
+    
+    return result
               
         
 # starting program
@@ -105,11 +114,12 @@ if __name__ == '__main__':
     input_file = input()
     
     # input file
-    fo = open(input_file,"r")   
+    fo = open("Example programs/" + input_file + ".txt", "r")   
     lines = fo.readlines()
     fo.close()
     
     prnt = list(lines)
+    i = 0
     
     # remove any whitespaces before processing
     for q in lines:
@@ -127,17 +137,33 @@ if __name__ == '__main__':
     for i in range(0x0000, 0xFFFF):
         memory.append("00000000")    
     
+    # initialize memory locations by user
+    print("\nStore data in memory locations.")
+    print("(Type 'E' to exit)")
+    while(1):
+        mem_addr = input("Memory Address: 0x")
+        
+        if(mem_addr == "E" or mem_addr == "e"):
+            print("-----------------\n")
+            break
+        
+        mem_value = input("   Enter Value: 0x")
+        memory[eval("0x"+mem_addr)] = hexToBin(mem_value)
+        print('')
+    
     # save labels for jump statements
     labels = {}
     
-    for i in range(lines):
+    for i in range(len(lines)):
         
         # create tokens
         p = lines[i].split()
         
         # if a empty line is encountered
         if(lines[i] == ""):
-            pq=pq+1
+            continue
+        
+        if(lines[i].find('//') != -1):
             continue
         
         if(':' in p):
@@ -162,6 +188,11 @@ if __name__ == '__main__':
             pq=pq+1
             i=i+1
             continue
+        
+        if(lines[i].find('//') != -1):
+            pq=pq+1
+            i=i+1            
+            continue        
 
 
 
@@ -221,12 +252,12 @@ if __name__ == '__main__':
         elif(p[0] == "LXI"):
 
             if(p[1] in ['B', 'D']):
-                reg[p[1]] = hexToBin(p[3][0-2])
-                reg[chr(ord(p[1])+1)] = hexToBin(p[3][2-4])
+                reg[p[1]] = hexToBin(p[3][0:2])
+                reg[chr(ord(p[1])+1)] = hexToBin(p[3][2:4])
             
             elif(p[1] == "H"):
-                reg['H'] = hexToBin(p[3][0-2])
-                reg['L'] = hexToBin(p[3][2-4])                
+                reg['H'] = hexToBin(p[3][0:2])
+                reg['L'] = hexToBin(p[3][2:4])                
 
         # LDAX Rp  (LOAD accumulator indirect) [A] <-- [[rp]]
         # Here Rp can be any one of the register pairs BC or DE.
@@ -1125,39 +1156,40 @@ if __name__ == '__main__':
     run_time = end_time - start_time
     
     # total time in execution
-    print("Time : {0}". format(run_time))
+    print("\n Time : {0} seconds\n". format(run_time))
     
     # Register values
-    print("Registers :")
-    print("Register A : {0}". format(reg['A']))
-    print("Register B : {0}". format(reg['B']))
-    print("Register C : {0}". format(reg['C']))
-    print("Register D : {0}". format(reg['D']))
-    print("Register E : {0}". format(reg['E']))
-    print("Register H : {0}". format(reg['H']))
-    print("Register L : {0}". format(reg['L']))
+    print("  Registers |   Binary    Decimal  Hexadecimal")
+    print(" -------------------------------------------")
+    print(" Register A |  {0}    {1:0>5d}       {2:0<4}". format(reg['A'], int(reg['A'], 2), hex(int(reg['A'], 2))))
+    print(" Register B |  {0}    {1:0>5d}       {2:0<4}". format(reg['B'], int(reg['B'], 2), hex(int(reg['B'], 2))))
+    print(" Register C |  {0}    {1:0>5d}       {2:0<4}". format(reg['C'], int(reg['C'], 2), hex(int(reg['C'], 2))))
+    print(" Register D |  {0}    {1:0>5d}       {2:0<4}". format(reg['D'], int(reg['D'], 2), hex(int(reg['D'], 2))))
+    print(" Register E |  {0}    {1:0>5d}       {2:0<4}". format(reg['E'], int(reg['E'], 2), hex(int(reg['E'], 2))))
+    print(" Register H |  {0}    {1:0>5d}       {2:0<4}". format(reg['H'], int(reg['H'], 2), hex(int(reg['H'], 2))))
+    print(" Register L |  {0}    {1:0>5d}       {2:0<4}". format(reg['L'], int(reg['L'], 2), hex(int(reg['L'], 2))))
     
     print('')
     
     # Flags values
-    print("Flags :")
-    print("Auxiliary Flag : {0}". format(flags['AC']))
-    print("    Carry Flag : {0}". format(flags['C']))
-    print("   Parity Flag : {0}". format(flags['P']))
-    print("     Sign Flag : {0}". format(flags['S']))
-    print("     Zero Flag : {0}". format(flags['Z']))
+    print(" Flags")
+    print(" -------------------------------")
+    print(" | S | Z |  | AC |  | P |  | C |")
+    print(" -------------------------------")
+    print(" | {0} | {1} |  |  {2} |  | {3} |  | {4} |". format(flags['S'], flags['Z'], flags['AC'], flags['P'], flags['C']))
+    print(" -------------------------------")
     
-    print("Enter memeory address to see its content.")
-    print("(Use '0x' for addess in hexadecimal)")
-    print("(Type 'E' to exit)")
+    print("\n Enter memory address to see its content.")
+    #print(" (Use '0x' for addess in hexadecimal)")
+    print(" (Type 'E' to exit)")
     
     while(1):
-        mem_addr = input("Memory Address: ")
+        mem_addr = input("\n Memory Address: 0x")
         
         if(mem_addr == 'E' or mem_addr == 'e'):
             break
         
-        print("Value: {0}". format(memory[eval(mem_addr)]))
+        print("          Value: {0} {1} {2}". format(memory[eval("0x"+mem_addr)], int(memory[eval("0x"+mem_addr)], 2), hex(int(memory[eval("0x"+mem_addr)], 2))))
     
       
-    print("\n=================================")
+    print("=================================\n")
