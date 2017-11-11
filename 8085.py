@@ -1,14 +1,18 @@
 from tokens import create_tokens
 import time
-'''
-function to add two binary numbers
-it takes input two binary strings and return the string which represents sum of numbers represented by the input strings
-'''
-def binadd (a,b,flags):
-    result=""
+
+
+def binadd(a, b, flags):
+    
+    '''
+    Function to add two binary numbers.
+    It takes input two binary strings and return the string which represents sum of numbers represented by the input strings
+    '''    
+    
+    result = "00000000"
     carry = '0'
-    no1=0
-    no0=0
+    no1 = 0
+    
     for i in range(7,-1,-1):
         if a[i] == '0' and b[i] == '0' and carry =='0':
             result[i] = '0'
@@ -18,58 +22,77 @@ def binadd (a,b,flags):
             carry = '1'
         elif a[i] == '1' and b[i] =='0' and carry == '0':
             result [i] = '1'
-            carry ='0'
+            carry = '0'
         elif a[i] == '0' and b[i] =='1' and carry == '0':
             result [i] = '1'
-            carry ='0'
+            carry = '0'
         elif a[i] == '1' and b[i] =='0' and carry == '1':
             result [i] = '0'
-            carry ='1'
+            carry = '1'
         elif a[i] == '0' and b[i] =='1' and carry == '1':
-            result [i] = '1'
-            carry ='0'
+            result [i] = '0'
+            carry = '1'
         elif a[i] == '1' and b[i] =='1' and carry == '1':
             result [i] = '1'
-            carry ='1'
+            carry = '1'
         elif a[i] == '0' and b[i] =='0' and carry == '1':
             result [i] = '1'
-            carry ='0'
-        if i == 3 and carry == '1':
+            carry = '0'
+        
+        # Auxiliary flag
+        if i == 4 and carry == '1':
             flags['AC'] =1
+        
+        # count number of 1's
         if result[i] == '1':
             no1 = no1+1
-        else:
-            no0+=1
+    
+    # Carry flag    
     if carry == '1':
-        flags['C'] =1 
-    if int (result , 2)==0:
-            flags['Z'] =1
+        flags['C'] = 1
+    
+    # Zero flag
+    if int(result, 2) == 0:
+        flags['Z'] = 1
+    
+    # Sign flag
     if result[0] == '1':
-            flags['S'] = 1
-    if no1 %2 ==0:
-            flags['P'] =1
-    retrun result
+        flags['S'] = 1
+    
+    # Parity flag
+    if no1%2 == 0:
+        flags['P'] = 1
+    
+    return result
+
               
-def comp (a):
+def comp(a):
+    
+    # Function for 2's complement of a binary number.
+    
+    # take 1's complement
     for i in range(8):
         if a[i] == "0":
-            a[i] ="1" 
+            a[i] = "1" 
         elif a[i] == "1":
             a[i] = "0"
-    carry = 0
+    
+    carry = 1
+    
     for i in range(7,-1,-1):
         if a[i] == "0" and carry == 0:
             a[i] = 0
-            carry =0 
-        elif a[i] == "1" and carry == 1:
-            a[i] =1
-            carry = 0
-        elif a[i] == "1" and carry == 1:
-            a[i] = 0
-            carry =1
-        elif a[i] == "0" and carry ==1 :
+            carry = 0 
+        elif a[i] == "0" and carry == 1:
             a[i] = 1
             carry = 0
+        elif a[i] == "1" and carry == 0:
+            a[i] = 1
+            carry = 0
+        elif a[i] == "1" and carry == 1 :
+            a[i] = 0
+            carry = 1
+    
     return a
               
               
@@ -80,13 +103,13 @@ if __name__ == '__main__':
     start_time = time.clock()
     print("Enter file name : ",end="")
     input_file = input()
-    # input file
-    fo = open(input_file,"r")
     
+    # input file
+    fo = open(input_file,"r")   
     lines = fo.readlines()
     fo.close()
+    
     prnt = list(lines)
-    i=0
     
     # remove any whitespaces before processing
     for q in lines:
@@ -119,8 +142,8 @@ if __name__ == '__main__':
         
         if(':' in p):
             labels[p[0]] = i
-            p.pop(0)
-            p.pop(0)
+            temp_a = lines[i].find(':')
+            lines[i] = lines[i][temp_a+1:]
     
     
     i = 0
@@ -132,7 +155,7 @@ if __name__ == '__main__':
     while(i < len(lines)):
         
         # create tokens
-        p = lines[i].split()
+        p = lines[i].strip().split()
         
         # if a empty line is encountered
         if(lines[i] == ""):
@@ -1092,14 +1115,49 @@ if __name__ == '__main__':
         # Generally used while trouble shooting a program.
 
         elif(p[0] == "NOP"):
-            pass
-        
+            pass        
         
         i = i + 1
 
 
-
-
-
-
-
+    # calculate time
+    end_time = time.clock()
+    run_time = end_time - start_time
+    
+    # total time in execution
+    print("Time : {0}". format(run_time))
+    
+    # Register values
+    print("Registers :")
+    print("Register A : {0}". format(reg['A']))
+    print("Register B : {0}". format(reg['B']))
+    print("Register C : {0}". format(reg['C']))
+    print("Register D : {0}". format(reg['D']))
+    print("Register E : {0}". format(reg['E']))
+    print("Register H : {0}". format(reg['H']))
+    print("Register L : {0}". format(reg['L']))
+    
+    print('')
+    
+    # Flags values
+    print("Flags :")
+    print("Auxiliary Flag : {0}". format(flags['AC']))
+    print("    Carry Flag : {0}". format(flags['C']))
+    print("   Parity Flag : {0}". format(flags['P']))
+    print("     Sign Flag : {0}". format(flags['S']))
+    print("     Zero Flag : {0}". format(flags['Z']))
+    
+    print("Enter memeory address to see its content.")
+    print("(Use '0x' for addess in hexadecimal)")
+    print("(Type 'E' to exit)")
+    
+    while(1):
+        mem_addr = input("Memory Address: ")
+        
+        if(mem_addr == 'E' or mem_addr == 'e'):
+            break
+        
+        print("Value: {0}". format(memory[eval(mem_addr)]))
+    
+      
+    print("\n=================================")
