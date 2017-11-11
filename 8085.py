@@ -102,20 +102,42 @@ if __name__ == '__main__':
     
     memory = []
     for i in range(0x0000, 0xFFFF):
-        memory.append("00000000")
+        memory.append("00000000")    
     
-    # tracks number of lines
-    pq = 1
+    # save labels for jump statements
+    labels = {}
     
-    # iterate over every line in files
-    for t in lines:
+    for i in range(lines):
         
         # create tokens
-        p = t.split()
+        p = lines[i].split()
         
         # if a empty line is encountered
-        if(t == ""):
+        if(lines[i] == ""):
             pq=pq+1
+            continue
+        
+        if(':' in p):
+            labels[p[0]] = i
+            p.pop(0)
+            p.pop(0)
+    
+    
+    i = 0
+    
+    # tracks number of lines
+    pq = 1    
+    
+    # iterate over every line in program
+    while(i < len(lines)):
+        
+        # create tokens
+        p = lines[i].split()
+        
+        # if a empty line is encountered
+        if(lines[i] == ""):
+            pq=pq+1
+            i=i+1
             continue
 
 
@@ -884,29 +906,24 @@ if __name__ == '__main__':
         # CMP R/M
         # Compare the data in register R or memory location M with the data in the 
         # accumulator for equality, greater than or less than.
-        # The flags are modified according to the subtraction result of A–R/M. 
+        # The flags are modified according to the subtraction result of A - R/M. 
         # However, the accumulator retains its earlier value and not the difference.
 
         elif(p[0] == "CMP"):
             temp = reg['A']
+            temp_b = int(reg['A'], 2)
+            
             if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
-                temp_a = int (reg[p[1]] , 2)
-                temp_b = int(reg['A'] ,2)
-                if temp_a == temp_b:
-                    flags['Z'] = 1
-                elif temp_a > temp_b:
-                    flags['C'] = 1
-                elif temp_a < temp_b:
-                    flags['C'] =0
+                temp_a = int(reg[p[1]], 2)
             elif p[1] == "M":
-                temp_a = int (memory[int(reg['H'] + reg['L'], 2)] , 2)
-                temp_b = int(reg['A'] ,2)
-                if temp_a == temp_b:
-                    flags['Z'] = 1
-                elif temp_a > temp_b:
-                    flags['C'] = 1
-                elif temp_a < temp_b:
-                    flags['C'] =0
+                temp_a = int(memory[int(reg['H'] + reg['L'], 2)] , 2)
+            
+            if temp_a == temp_b:
+                flags['Z'] = 1
+            elif temp_a > temp_b:
+                flags['C'] = 1
+            elif temp_a < temp_b:
+                flags['C'] =0
                     
             reg['A'] = temp
             
@@ -924,21 +941,22 @@ if __name__ == '__main__':
         # (iii) A<data, then CY flag is set.
 
         elif(p[0] == "CPI"):
-            temp_a = bin(int(p[1] , 16)).lstrip("-0b").zfill(8)
+            temp_a = bin(int(p[1], 16)).lstrip("-0b").zfill(8)
             temp_b = int(reg['A'] ,2)
+            
             if temp_a == temp_b:
                 flags['Z'] = 1
             elif temp_a > temp_b:
                 flags['C'] = 1
             elif temp_a < temp_b:
-                flags['C'] =0
+                flags['C'] = 0
 
         # CMC
         # Complement the CY flag bit. No other flag is modified.
 
         elif(p[0] == "CMC"):
             if flags['C'] == 1:
-                flags['C'] =0
+                flags['C'] = 0
             elif flags['C'] == 0:
                 flags['C'] = 1
 
@@ -966,61 +984,79 @@ if __name__ == '__main__':
         # In case of conditional jumping the instructions test the status of one of the
         # four flags S, Z, P, and CY.
 
-        # JMP 16-bit
+        # JMP 16-bit/label
         # Jump the program control unconditionally to the memory location specified by 
         # the 16-bit address mentioned in the instruction (as second and third bytes 
         # of the instruction).
 
         elif(p[0] == "JMP"):
-            pass
+            if(labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # JC 16-bit
         # Jump if Carry flag is set to the 16-bit address.
 
         elif(p[0] == "JC"):
-            pass
+            if(flags['C'] == 1 and labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # JNC 16-bit
         # Jump if Carry flag is not set to the 16-bit address.
 
         elif(p[0] == "JNC"):
-            pass
+            if(flags['C'] == 0 and labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # JZ 16-bit
         # Jump if Zero flag is set to the 16-bit address.
 
         elif(p[0] == "JZ"):
-            pass
+            if(flags['Z'] == 1 and labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # JNZ 16-bit
         # Jump if Zero flag is not set to the 16-bit address.
 
         elif(p[0] == "JNZ"):
-            pass
+            if(flags['Z'] == 0 and labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # JP 16-bit
         # Jump on Plus i.e. if sign flag is reset to the 16-bit address.
 
         elif(p[0] == "JP"):
-            pass
+            if(flags['S'] == 0 and labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # JM 16-bit
         # Jump on Minus i.e. if sign flag is set to the 16-bit address.
 
         elif(p[0] == "JM"):
-            pass
+            if(flags['S'] == 1 and labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # JPE 16-bit
         # Jump if Parity flag is set to the 16-bit address. (Even Parity)
 
         elif(p[0] == "JPE"):
-            pass
+            if(flags['P'] == 1 and labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # JPO 16-bit
         # Jump if Parity flag is reset to the 16-bit address. (Odd Parity)
 
         elif(p[0] == "JPO"):
-            pass
+            if(flags['P'] == 0 and labels.get(p[1]) != None):
+                i = labels.get(p[1])
+            continue
 
         # CALL 16-bit
         # Call a subroutine i.e. transfer the program control to starting memory 
@@ -1049,7 +1085,7 @@ if __name__ == '__main__':
         # The buses are placed in high impedance state.
 
         elif(p[0] == "HLT"):
-            pass
+            break
 
         # NOP  (No Operation)
         # No operation is to be executed.
@@ -1057,6 +1093,9 @@ if __name__ == '__main__':
 
         elif(p[0] == "NOP"):
             pass
+        
+        
+        i = i + 1
 
 
 
