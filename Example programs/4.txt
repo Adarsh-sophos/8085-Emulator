@@ -1,0 +1,10 @@
+//Exchange the contents of memory locations
+
+LXI H, 2000
+LXI D, 4000
+MOV B, M
+LDAX D
+MOV M, A
+MOV A, B
+STAX D
+HLT   

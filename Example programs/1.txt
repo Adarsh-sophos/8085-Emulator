@@ -1,0 +1,5 @@
+//Store 8-bit data in memory
+
+MVI A, 52
+STA 4000
+HLT     

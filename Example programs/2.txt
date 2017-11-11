@@ -1,0 +1,5 @@
+//Store 8-bit data in memory
+
+LXI H,4000
+MVI M,32
+HLT

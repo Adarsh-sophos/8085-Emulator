@@ -1,0 +1,14 @@
+// Add two 8-bit numbers
+
+// Sample problem 
+// (4000H) = 14H
+// (4001H) = 89H
+// Result  = 14H + 89H = 9DH
+ 
+LXI H, 4000
+MOV A, M
+INX H
+ADD M
+INX H
+MOV M, A
+HLT

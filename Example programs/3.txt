@@ -1,0 +1,8 @@
+//Exchange the contents of memory locations
+
+LDA 2000
+MOV B, A
+LDA 4000
+STA 2000
+MOV A, B
+STA 4000 
