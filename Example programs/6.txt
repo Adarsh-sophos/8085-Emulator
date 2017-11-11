@@ -1,0 +1,15 @@
+// Subtract two 8-bit numbers
+// Statement: Subtract the contents of memory location 4001H from the memory location 4001H and place the result in memory location 4002H.
+
+// Sample problem: 
+// (4000H) = 51H
+// (4001H) = 19H
+// Result  = 51H – 19H = 38H 
+
+LXI H, 4000
+MOV A, M
+INX H
+SUB M
+INX H
+MOV M, A
+HLT

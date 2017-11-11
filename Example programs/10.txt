@@ -1,0 +1,23 @@
+// Subtract two 16-bit numbers
+// Statement: Subtract the 16-bit number in memory locations 4002H and 4003H from the 16-bit number in memory locations 4000H and 4001H. The most significant eight bits of the two numbers are in memory locations 4001H and 4003H. Store the result in memory locations 4004H and 4005H with the most significant byte in memory location 4005H.
+
+// Sample problem:
+// (4000H) = 19H
+// (4001H) = 6AH
+// (4002H) = 15H
+// (4003H) = 5CH
+// Result  = 6A19H – 5C15H = 0E04H
+// (4004H) = 04H
+// (4005H) = 0EH
+
+LHLD 4000
+XCHG
+LHLD 4002
+MOV A, E
+SUB L
+MOV L, A
+MOV A, D
+SBB H
+MOV H, A
+SHLD 4004
+HLT

@@ -1,0 +1,12 @@
+// Finding Two’s complement of a number
+// Statement: Find the 2′s complement of the number stored at memory location 4200H and store the complemented number at memory location 4300H
+
+// Sample problem:
+// (4200H) = 55H
+// Result = (4300H) = AAH + 1 = ABH
+
+LDA 4200
+CMA
+ADI 01
+STA 4300
+HLT

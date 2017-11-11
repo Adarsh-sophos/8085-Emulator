@@ -1,4 +1,5 @@
 // Add two 8-bit numbers
+// Statement: Add the contents of memory locations 4000H and 4001H and place the result in memory location 4002H.
 
 // Sample problem 
 // (4000H) = 14H

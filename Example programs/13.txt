@@ -1,0 +1,20 @@
+// Pack the unpacked BCD numbers
+// Statement: Pack the two unpacked BCD numbers stored in memory locations 4200H and 4201H and store result in memory location 4300H. Assume the least significant digit is stored at 4200H.
+
+// Sample problem:
+// (4200H) = 04
+// (4201H) = 09
+// Result = (4300H) = 94
+
+LDA 4201
+RLC
+RLC
+RLC
+RLC
+// Make least significant BCD digit zero
+ANI F0
+MOV C, A
+LDA 4200
+ADD C
+STA 4300
+HLT

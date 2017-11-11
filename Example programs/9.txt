@@ -1,0 +1,21 @@
+// Add contents of two memory locations
+// Statement: Add the contents of memory locations 4000H and 4001H and place the result in the memory locations 4002H and 4003H.
+
+// Sample problem:
+// (4000H) = 7FH
+// (400lH) = 89H
+// Result  = 7FH + 89H = 108H
+// (4002H) = 08H
+// (4003H) = 0lH
+
+LXI H, 4000
+MOV A, M
+INX H
+ADD M
+INX H
+MOV M, A
+MVI A, 00
+ADC A
+INX H
+MOV M, A
+HLT

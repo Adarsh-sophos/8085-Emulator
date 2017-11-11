@@ -69,30 +69,32 @@ def binadd(a, b, flags):
 def comp(a):
     # Function for 2's complement of a binary number.
     
+    result = ""
+    
     # take 1's complement
     for i in range(8):
         if a[i] == "0":
-            a[i] = "1" 
+            result += "1"
         elif a[i] == "1":
-            a[i] = "0"
-    
+            result += "0"
+
     carry = 1
     
     for i in range(7,-1,-1):
-        if a[i] == "0" and carry == 0:
-            a[i] = 0
+        if result[i] == "0" and carry == 0:
+            result = result[:i] + str(0) + result[i+1:]
             carry = 0 
-        elif a[i] == "0" and carry == 1:
-            a[i] = 1
+        elif result[i] == "0" and carry == 1:
+            result = result[:i] + str(1) + result[i+1:]
             carry = 0
-        elif a[i] == "1" and carry == 0:
-            a[i] = 1
+        elif result[i] == "1" and carry == 0:
+            result = result[:i] + str(1) + result[i+1:]
             carry = 0
-        elif a[i] == "1" and carry == 1 :
-            a[i] = 0
+        elif result[i] == "1" and carry == 1:
+            result = result[:i] + str(0) + result[i+1:]
             carry = 1
     
-    return a
+    return result
 
 
 def hexToBin(a):
@@ -104,7 +106,16 @@ def hexToBin(a):
         result += bin(eval('0x'+c)).lstrip("0b").zfill(4)
     
     return result
-              
+
+
+def binToHex(a):
+    # Converts a binary number in hexadecimal
+       
+    result = hex(int(a, 2)).lstrip('0x').zfill(2)
+    
+    return result
+        
+        
         
 # starting program
 if __name__ == '__main__':
@@ -135,8 +146,13 @@ if __name__ == '__main__':
     
     memory = []
     for i in range(0x0000, 0xFFFF):
-        memory.append("00000000")    
+        memory.append("00000000")
     
+    memory[eval('0x4200')] = hexToBin('04')
+    memory[eval('0x4201')] = hexToBin('09')
+    memory[eval('0x4002')] = hexToBin('15')
+    memory[eval('0x4003')] = hexToBin('5c')
+    '''
     # initialize memory locations by user
     print("\nStore data in memory locations.")
     print("(Type 'E' to exit)")
@@ -150,7 +166,7 @@ if __name__ == '__main__':
         mem_value = input("   Enter Value: 0x")
         memory[eval("0x"+mem_addr)] = hexToBin(mem_value)
         print('')
-    
+    '''
     # save labels for jump statements
     labels = {}
     
@@ -172,26 +188,26 @@ if __name__ == '__main__':
             lines[i] = lines[i][temp_a+1:]
     
     
-    i = 0
+    j = 0
     
     # tracks number of lines
     pq = 1    
     
     # iterate over every line in program
-    while(i < len(lines)):
+    while(j < len(lines)):
         
         # create tokens
-        p = lines[i].strip().split()
+        p = lines[j].strip().split()
         
         # if a empty line is encountered
-        if(lines[i] == ""):
+        if(lines[j] == ""):
             pq=pq+1
-            i=i+1
+            j=j+1
             continue
         
-        if(lines[i].find('//') != -1):
+        if(lines[j].find('//') != -1):
             pq=pq+1
-            i=i+1            
+            j=j+1            
             continue        
 
 
@@ -497,11 +513,11 @@ if __name__ == '__main__':
             elif p[1] == "M":
                 temp_a = comp(memory[int(reg['H'] + reg['L'], 2)])
             
-            if flags['C'] == 0:
+            if flags['S'] == 0:
                 temp_b = comp("00000000")
             else :
                 temp_b = comp("00000001")
-            
+
             reg['A'] = binadd(reg['A'], temp_a, flags)
             reg['A'] = binadd(reg['A'], temp_b, flags)
         
@@ -513,7 +529,7 @@ if __name__ == '__main__':
             temp_a = bin(int(p[1], 16)).lstrip('-0b').zfill(8)
             temp_b = comp(temp_a)
             
-            if flags['C'] == 0:
+            if flags['S'] == 0:
                 temp_c = comp("00000000")
             else :
                 temp_c = comp("00000001")
@@ -555,46 +571,38 @@ if __name__ == '__main__':
         # These instructions do not affect the flags.
 
         elif(p[0] == "INX"):
-            temp_flags = dict(flags)
             
             if p[1] == 'B':
-                reg['C'] = binadd(reg['C'], "00000001", flags)
-                if flags['C'] == 1:
-                    reg['B'] = binadd(reg['B'], "00000001", flags)
+                temp_a = bin(int(reg['B']+reg['C'], 2)+1).lstrip("0b").zfill(16)
+                reg['B'] = temp_a[0:8]
+                reg['C'] = temp_a[8:16]
                     
             elif p[1] == 'D':
-                reg['E'] = binadd(reg['E'], "00000001", flags)
-                if flags['C'] == 1:
-                    reg['D'] = binadd(reg['D'], "00000001", flags)
+                temp_a = bin(int(reg['D']+reg['E'], 2)+1).lstrip("0b").zfill(16)
+                reg['D'] = temp_a[0:8]
+                reg['E'] = temp_a[8:16]
                     
             elif p[1] == 'H':
-                reg['L'] = binadd(reg['L'], "00000001", flags)
-                if flags['C'] == 1:
-                    reg['H'] = binadd(reg['H'], "00000001", flags)
-            
-            flags = dict(temp_flags)
-        
+                temp_a = bin(int(reg['H']+reg['L'], 2)+1).lstrip("0b").zfill(16)
+                reg['H'] = temp_a[0:8]
+                reg['L'] = temp_a[8:16]        
         
         elif(p[0] == "DCX"):
-            temp_flags = dict(flags)
-            temp_a = comp("00000001")
             
             if p[1] == 'B':
-                reg['C'] = binadd(reg['C'], temp_a, flags)
-                if flags['C'] == 1:
-                    reg['B'] = binadd(reg['B'], "00000001", flags)
+                temp_a = bin(int(reg['B']+reg['C'], 2)-1).lstrip("0b").zfill(16)
+                reg['B'] = temp_a[0:8]
+                reg['C'] = temp_a[8:16]
                     
             elif p[1] == 'D':
-                reg['E'] = binadd(reg['E'], temp_a, flags)
-                if flags['C'] == 1:
-                    reg['D'] = binadd(reg['D'], "00000001", flags)
+                temp_a = bin(int(reg['D']+reg['E'], 2)-1).lstrip("0b").zfill(16)
+                reg['D'] = temp_a[0:8]
+                reg['E'] = temp_a[8:16]
                     
             elif p[1] == 'H':
-                reg['L'] = binadd(reg['L'], temp_a, flags)
-                if flags['C'] == 1:
-                    reg['H'] = binadd(reg['H'], "00000001", flags)
-            
-            flags = dict(temp_flags)           
+                temp_a = bin(int(reg['H']+reg['L'], 2)-1).lstrip("0b").zfill(16)
+                reg['H'] = temp_a[0:8]
+                reg['L'] = temp_a[8:16]  
             
 
         # DAD Rp
@@ -611,21 +619,21 @@ if __name__ == '__main__':
             
             if p[1] == 'B':
                 reg['L'] = binadd(reg['L'], reg['C'], flags)
-                temp_c = flags['C'] 
+                temp_c = "0000000" + str(flags['C']) 
                 reg['H'] = binadd(reg['H'], reg['B'], flags)
-                reg['H'] = binadd(reg['H'], hello, flags)
+                reg['H'] = binadd(reg['H'], temp_c, flags)
             
             if p[1] == 'D':
                 reg['L'] = binadd(reg['L'], reg['E'], flags)
-                temp_c = flags['C'] 
+                temp_c = "0000000" + str(flags['C']) 
                 reg['H'] = binadd(reg['H'], reg['D'], flags)
-                reg['H'] = binadd(reg['H'], hello, flags)
+                reg['H'] = binadd(reg['H'], temp_c, flags)
                     
             if p[1] == 'H':
                 reg['L'] = binadd(reg['L'], reg['L'], flags)
-                temp_c = flags['C'] 
+                temp_c = "0000000" + str(flags['C']) 
                 reg['H'] = binadd(reg['H'], reg['H'], flags)
-                reg['H'] = binadd(reg['H'], hello, flags)               
+                reg['H'] = binadd(reg['H'], temp_c, flags)               
                     
             flags['AC'] = temp1
             flags['P'] = temp2
@@ -905,11 +913,13 @@ if __name__ == '__main__':
         # Complement (logical NOT) the contents of the accumulator.
 
         elif(p[0] == "CMA"):
+            temp_a = ""
             for i in range(8):
-                if reg['A'][i] == 0:
-                    reg['A'][i] = 1
-                elif reg['A'][i] == 1:
-                    reg['A'][i] = 0
+                if reg['A'][i] == '0':
+                    temp_a += '1'
+                elif reg['A'][i] == '1':
+                    temp_a += '0'
+            reg['A'] = temp_a
             
         # RLC  (Rotate accumulator left) [An+1] <-- [An], [A0] <-- [A7],[CS] <-- [A7]
         # Rotate each bit in the accumulator by one position to the left with the MSB 
@@ -917,6 +927,7 @@ if __name__ == '__main__':
 
         elif(p[0] == "RLC"):
             flags['C'] = reg['A'][0]
+            result = ""
             
             for i in range(0,7):
                 reg['A'][i] = reg['A'][i+1]
@@ -1148,7 +1159,7 @@ if __name__ == '__main__':
         elif(p[0] == "NOP"):
             pass        
         
-        i = i + 1
+        j = j + 1
 
 
     # calculate time
@@ -1161,13 +1172,13 @@ if __name__ == '__main__':
     # Register values
     print("  Registers |   Binary    Decimal  Hexadecimal")
     print(" -------------------------------------------")
-    print(" Register A |  {0}    {1:0>5d}       {2:0<4}". format(reg['A'], int(reg['A'], 2), hex(int(reg['A'], 2))))
-    print(" Register B |  {0}    {1:0>5d}       {2:0<4}". format(reg['B'], int(reg['B'], 2), hex(int(reg['B'], 2))))
-    print(" Register C |  {0}    {1:0>5d}       {2:0<4}". format(reg['C'], int(reg['C'], 2), hex(int(reg['C'], 2))))
-    print(" Register D |  {0}    {1:0>5d}       {2:0<4}". format(reg['D'], int(reg['D'], 2), hex(int(reg['D'], 2))))
-    print(" Register E |  {0}    {1:0>5d}       {2:0<4}". format(reg['E'], int(reg['E'], 2), hex(int(reg['E'], 2))))
-    print(" Register H |  {0}    {1:0>5d}       {2:0<4}". format(reg['H'], int(reg['H'], 2), hex(int(reg['H'], 2))))
-    print(" Register L |  {0}    {1:0>5d}       {2:0<4}". format(reg['L'], int(reg['L'], 2), hex(int(reg['L'], 2))))
+    print(" Register A |  {0}    {1:0>5d}       0x{2}". format(reg['A'], int(reg['A'], 2), binToHex(reg['A'])))
+    print(" Register B |  {0}    {1:0>5d}       0x{2}". format(reg['B'], int(reg['B'], 2), binToHex(reg['B'])))
+    print(" Register C |  {0}    {1:0>5d}       0x{2}". format(reg['C'], int(reg['C'], 2), binToHex(reg['C'])))
+    print(" Register D |  {0}    {1:0>5d}       0x{2}". format(reg['D'], int(reg['D'], 2), binToHex(reg['D'])))
+    print(" Register E |  {0}    {1:0>5d}       0x{2}". format(reg['E'], int(reg['E'], 2), binToHex(reg['E'])))
+    print(" Register H |  {0}    {1:0>5d}       0x{2}". format(reg['H'], int(reg['H'], 2), binToHex(reg['H'])))
+    print(" Register L |  {0}    {1:0>5d}       0x{2}". format(reg['L'], int(reg['L'], 2), binToHex(reg['L'])))
     
     print('')
     
@@ -1189,7 +1200,7 @@ if __name__ == '__main__':
         if(mem_addr == 'E' or mem_addr == 'e'):
             break
         
-        print("          Value: {0} {1} {2}". format(memory[eval("0x"+mem_addr)], int(memory[eval("0x"+mem_addr)], 2), hex(int(memory[eval("0x"+mem_addr)], 2))))
+        print("          Value: {0} {1} 0x{2}". format(memory[eval("0x"+mem_addr)], int(memory[eval("0x"+mem_addr)], 2), hex(int(memory[eval("0x"+mem_addr)], 2)).lstrip("0x").zfill(2)))
     
       
     print("=================================\n")

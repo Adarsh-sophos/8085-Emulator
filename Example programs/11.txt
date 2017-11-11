@@ -1,0 +1,11 @@
+// Finding one’s complement of a number
+// Statement: Find the l’s complement of the number stored at memory location 4400H and store the complemented number at memory location 4300H.
+
+// Sample problem:
+// (4400H) = 55H
+// Result = (4300H) = AAH
+
+LDA 4400
+CMA
+STA 4300
+HLT
