@@ -1,0 +1,29 @@
+// Calculate the sum of series of odd numbers
+// Statement: Calculate the sum of series of odd numbers from the list of numbers. The length of the list is in memory location 2200H and the series itself begins from memory location 2201H. Assume the sum to be 16-bit. Store the sum at memory location 2210H.
+
+// Sample problem
+// 2200H = 4H
+// 2201H= 9AH
+// 2202H= 52H
+// 2203H= 89H
+// 2204H= 3FH
+// Result = (2210H) = 89H + 3FH = C8H
+
+LDA 2200
+MOV C, A
+LXI H, 2201
+MVI E, 00
+MOV D, E
+BACK: MOV A, M
+ANI 01
+JZ SKIP
+MOV A, E
+ADD M
+MOV E, A
+JNC SKIP
+INR D
+SKIP: INX H
+DCR C
+JNZ BACK
+STA 2210
+HLT

@@ -1,0 +1,16 @@
+// Separate even numbers from given numbers
+// Statement: Write an assembly language program to separate even numbers from the given list of 10 numbers and store them in the another list starting from 2300H. Assume starting address of 10 number list is 2200H.
+
+LXI H, 2200
+LXI D, 2300
+MVI C, 09
+BACK:MOV A, M
+ANI 01
+JNZ SKIP
+MOV A, M
+STAX D
+INX D
+SKIP: INX H
+DCR C
+JNZ BACK
+HLT

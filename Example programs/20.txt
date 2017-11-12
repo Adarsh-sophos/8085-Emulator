@@ -1,0 +1,17 @@
+// Search a byte in a given number
+// Statement: Search the given byte in the list of 10 numbers stored in the consecutive memory locations and store the address of memory location in the memory locations 2200H and 2201H. Assume byte is in the C register and starting address of the list is 2000H. If byte is not found store 00 at 2200H and 2201H.
+
+MVI C, 43
+LXI H, 2200
+MVI B, 09
+BACK: MOV A, M
+CMP C
+JZ LAST
+INX H
+DCR B
+JNZ BACK
+LXI H, 0000
+SHLD 2300
+JMP END
+LAST: SHLD 2300
+END:  HLT

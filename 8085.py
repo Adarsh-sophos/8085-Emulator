@@ -159,12 +159,12 @@ if __name__ == '__main__':
         memory.append("00000000")
     
     memory[eval('0x2200')] = hexToBin('04')
-    memory[eval('0x2201')] = hexToBin('20')
-    memory[eval('0x2202')] = hexToBin('15')
-    memory[eval('0x2203')] = hexToBin('13')
-    memory[eval('0x2204')] = hexToBin('22')
-    memory[eval('0x2205')] = hexToBin('33')
-    memory[eval('0x2206')] = hexToBin('32')
+    memory[eval('0x2201')] = hexToBin('9A')
+    memory[eval('0x2202')] = hexToBin('52')
+    memory[eval('0x2203')] = hexToBin('89')
+    memory[eval('0x2204')] = hexToBin('3F')
+    memory[eval('0x2205')] = hexToBin('40')
+    memory[eval('0x2206')] = hexToBin('11')
     memory[eval('0x2207')] = hexToBin('38')
     memory[eval('0x2208')] = hexToBin('35')
     memory[eval('0x2209')] = hexToBin('3A')
@@ -1045,7 +1045,7 @@ if __name__ == '__main__':
         # (iii) A<data, then CY flag is set.
 
         elif(p[0] == "CPI"):
-            temp_a = bin(int(p[1], 16)).lstrip("-0b").zfill(8)
+            temp_a = int(p[1], 16)
             temp_b = int(reg['A'] ,2)
             
             if temp_a == temp_b:
