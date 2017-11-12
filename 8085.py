@@ -158,11 +158,11 @@ if __name__ == '__main__':
     for i in range(0x0000, 0xFFFF):
         memory.append("00000000")
     
-    memory[eval('0x2200')] = hexToBin('34')
-    memory[eval('0x2201')] = hexToBin('39')
-    memory[eval('0x2202')] = hexToBin('36')
-    memory[eval('0x2203')] = hexToBin('37')
-    memory[eval('0x2204')] = hexToBin('31')
+    memory[eval('0x2200')] = hexToBin('04')
+    memory[eval('0x2201')] = hexToBin('20')
+    memory[eval('0x2202')] = hexToBin('15')
+    memory[eval('0x2203')] = hexToBin('13')
+    memory[eval('0x2204')] = hexToBin('22')
     memory[eval('0x2205')] = hexToBin('33')
     memory[eval('0x2206')] = hexToBin('32')
     memory[eval('0x2207')] = hexToBin('38')
@@ -679,21 +679,23 @@ if __name__ == '__main__':
                 temp_b = reg[p[1]]
             elif p[1] == 'M':       
                 temp_b = memory[int(reg['H'] + reg['L'], 2)]            
-                
+            
+            result = ""
+            
             for i in range(8):
                 if temp_a[i] == '0' and temp_b[i] == '0':
-                    temp_a[i]  = '0'
+                    result += '0'
                     
                 elif temp_a[i] == '1' and temp_b[i] == '0':
-                    temp_a[i]  = '0'
+                    result += '0'
                     
                 elif temp_a[i] == '0' and temp_b[i] == '1':
-                    temp_a[i]  = '0'
+                    result += '0'
              
                 elif temp_a[i] == '1' and temp_b[i] == '1':
-                    temp_a[i]  = '1'                   
+                    result += '1'
                     
-            reg['A'] = temp_a                    
+            reg['A'] = result
                     
             flag['C'] = 0
             flag['AC'] = 1
@@ -767,21 +769,23 @@ if __name__ == '__main__':
                 temp_b = reg[p[1]]
             elif p[1] == 'M':        
                 temp_b = memory[int(reg['H'] + reg['L'], 2)]
-                
+            
+            result = ""
+            
             for i in range(8):
                 if temp_a[i] == '0' and temp_b[i] == '0':
-                    temp_a[i]  = '0'
+                    result += '0'
                 
                 elif temp_a[i] == '1' and temp_b[i] == '0':
-                    temp_a[i]  = '1'
+                    result += '1'
                 
                 elif temp_a[i] == '0' and temp_b[i] == '1':
-                    temp_a[i]  = '1'
+                    result += '1'
          
                 elif temp_a[i] == '1' and temp_b[i] == '1':
-                    temp_a[i]  = '1'                   
+                    result += '1'                   
                     
-            reg['A'] = temp_a               
+            reg['A'] = result               
             flag['C'] = 0
             flag['AC'] = 0
                     
@@ -807,20 +811,22 @@ if __name__ == '__main__':
             temp_b = bin(temp_a).lstrip("-0b").zfill(8)
             temp_x = reg['A']
             
+            result = ""
+            
             for i in range(8):
                 if temp_x[i] == '0' and temp_b[i] == '0':
-                    temp_x[i]  = '0'
+                    result += '0'
                     
                 elif temp_x[i] == '1' and temp_b[i] == '0':
-                    temp_x[i]  = '1'
+                    result += '1'
                     
                 elif temp_x[i] == '0' and temp_b[i] == '1':
-                    temp_x[i]  = '1'
+                    result += '1'
              
                 elif temp_x[i] == '1' and temp_b[i] == '1':
-                    temp_x[i]  = '1'                  
+                    result += '1'                  
                     
-            reg['A'] = temp_x 
+            reg['A'] = result 
                     
             flag['C'] = 0
             flag['AC'] = 0
@@ -851,21 +857,23 @@ if __name__ == '__main__':
                 temp_b = reg[p[1]]
             elif p[1] == 'M':        
                 temp_b = memory[int(reg['H'] + reg['L'], 2)]            
-                
+            
+            result = ""
+            
             for i in range(8):
                 if temp_a[i] == '0' and temp_b[i] == '0':
-                    temp_a[i]  = '0'
+                    result += '0'
                 
                 elif temp_a[i] == '1' and temp_b[i] == '0':
-                    temp_a[i]  = '1'
+                    result += '1'
                 
                 elif temp_a[i] == '0' and temp_b[i] == '1':
-                    temp_a[i]  = '1'
+                    result += '1'
          
                 elif temp_a[i] == '1' and temp_b[i] == '1':
-                    temp_a[i]  = '0'
+                    result += '0'
                                        
-                reg['A'] = temp_a                   
+            reg['A'] = result                   
             
             flag['C'] = 0
             flag['AC'] = 0
@@ -889,24 +897,26 @@ if __name__ == '__main__':
         # Both CY flag and AC flag are reset.
 
         elif(p[0] == "XRI"):
-            temp_a = int (p[1] , 16)
+            temp_a = int(p[1] , 16)
             temp_b = bin(temp_a).lstrip("-0b").zfill(8)
             temp_x = reg['A']
             
+            result = ""
+            
             for i in range(8):
                 if temp_x[i] == '0' and temp_b[i] == '0':
-                    temp_x[i]  = '0'
+                    result += '0'
                     
                 elif temp_x[i] == '1' and temp_b[i] == '0':
-                    temp_x[i]  = '1'
+                    result += '1'
                     
                 elif temp_x[i] == '0' and temp_b[i] == '1':
-                    temp_x[i]  = '1'
+                    result += '1'
              
                 elif temp_x[i] == '1' and temp_b[i] == '1':
-                    temp_x[i]  = '0'                  
+                    result += '0'                  
                     
-            reg['A'] = temp_x 
+            reg['A'] = result
                     
             flag['C'] = 0
             flag['AC'] = 0

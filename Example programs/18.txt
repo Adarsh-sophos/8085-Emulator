@@ -1,0 +1,26 @@
+// Calculate the sum of series of even numbers
+// Statement: Calculate the sum of series of even numbers from the list of numbers. The length of the list is in memory location 2200H and the series itself begins from memory location 2201H. Assume the sum to be 8 bit number so you can ignore carries and store the sum at memory location 2210H.
+
+// Sample problem
+// 2200H= 4H
+// 2201H= 20H
+// 2202H= l5H
+// 2203H= l3H
+// 2204H= 22H
+// Result 22l0H= 20 + 22 = 42H
+
+LDA 2200
+MOV C, A
+MVI B, 00
+LXI H, 2201
+BACK: MOV A, M
+ANI 01
+JNZ SKIP
+MOV A, B
+ADD M
+MOV B, A
+SKIP: INX H
+DCR C
+JNZ BACK
+STA 2210
+HLT
