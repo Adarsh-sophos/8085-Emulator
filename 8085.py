@@ -187,7 +187,7 @@ if __name__ == '__main__':
             temp_a = lines[i].find(':')
             lines[i] = lines[i][temp_a+1:]
             #print(lines[i])
-    print(labels)
+
     j = 0
     
     # tracks number of lines
@@ -925,7 +925,7 @@ if __name__ == '__main__':
         # shifting to the LSB position as well as to the CY flag.
 
         elif(p[0] == "RLC"):
-            flags['C'] = reg['A'][0]
+            flags['C'] = int(reg['A'][0])
             result = ""
             
             for i in range(0,7):
@@ -940,7 +940,7 @@ if __name__ == '__main__':
 
         elif(p[0] == "RAL"):
             temp = flags['C']
-            flags['C'] = reg['A'][0]
+            flags['C'] = int(reg['A'][0])
             result = ""
             
             for i in range(0,7):
@@ -955,7 +955,7 @@ if __name__ == '__main__':
         # shifting to the MSB position as well as to the CY flag.
 
         elif(p[0] == "RRC"):
-            flags['C'] = reg['A'][7]
+            flags['C'] = int(reg['A'][7])
             result = ""
             
             for i in range(7,0,-1):
@@ -970,9 +970,8 @@ if __name__ == '__main__':
         # shifting to the CY flag and the CY flag bit shifting to the MSB position.
 
         elif(p[0] == "RAR"):
-            print("Hello")
             temp = flags['C']
-            flags['C'] = reg['A'][7]
+            flags['C'] = int(reg['A'][7])
             result = ""
             
             for i in range(7,0,-1):
@@ -981,9 +980,6 @@ if __name__ == '__main__':
             
             reg['A'] = result
             
-            print("RAR : " + str(flags['C']))
-            time.sleep(1)
-
         # CMP R/M
         # Compare the data in register R or memory location M with the data in the 
         # accumulator for equality, greater than or less than.
@@ -1091,17 +1087,10 @@ if __name__ == '__main__':
         # Jump if Carry flag is not set to the 16-bit address.
 
         elif(p[0] == "JNC"):
-            print(labels.get(p[1]))
-            print(flags['C'])
-            print(labels)
             if(flags['C'] == 0 and labels.get(p[1]) != None):
                 j = labels.get(p[1])
-                print("inside : "+str(j))
             else:
                 j += 1
-            print(j)
-            print("JNC : " + str(flags['C']))
-            time.sleep(2)
             continue
 
         # JZ 16-bit
@@ -1122,8 +1111,6 @@ if __name__ == '__main__':
                 j = labels.get(p[1])
             else:
                 j += 1            
-            print("JNZ : " + str(flags['Z']))
-            time.sleep(2)            
             continue
 
         # JP 16-bit
