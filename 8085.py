@@ -40,7 +40,9 @@ def binadd(a, b, flags):
         
         # Auxiliary flag
         if i == 4 and carry == '1':
-            flags['AC'] =1
+            flags['AC'] = 1
+        else:
+            flags['AC'] = 0
         
     # Count number of 1's
     for i in range(8):
@@ -50,18 +52,26 @@ def binadd(a, b, flags):
     # Carry flag    
     if carry == '1':
         flags['C'] = 1
+    else:
+        flags['C'] = 0
     
     # Zero flag
     if int(result, 2) == 0:
         flags['Z'] = 1
+    else:
+        flags['Z'] = 0
     
     # Sign flag
     if result[0] == '1':
         flags['S'] = 1
+    else:
+        flags['S'] = 0
     
     # Parity flag
     if no1%2 == 0:
         flags['P'] = 1
+    else:
+        flags['P'] = 0
     
     return result
 
@@ -148,10 +158,16 @@ if __name__ == '__main__':
     for i in range(0x0000, 0xFFFF):
         memory.append("00000000")
     
-    memory[eval('0x4200')] = hexToBin('58')
-    memory[eval('0x4201')] = hexToBin('09')
-    memory[eval('0x4002')] = hexToBin('15')
-    memory[eval('0x4003')] = hexToBin('5c')
+    memory[eval('0x2200')] = hexToBin('34')
+    memory[eval('0x2201')] = hexToBin('39')
+    memory[eval('0x2202')] = hexToBin('36')
+    memory[eval('0x2203')] = hexToBin('37')
+    memory[eval('0x2204')] = hexToBin('31')
+    memory[eval('0x2205')] = hexToBin('33')
+    memory[eval('0x2206')] = hexToBin('32')
+    memory[eval('0x2207')] = hexToBin('38')
+    memory[eval('0x2208')] = hexToBin('35')
+    memory[eval('0x2209')] = hexToBin('3A')
     '''
     # initialize memory locations by user
     print("\nStore data in memory locations.")
@@ -557,12 +573,13 @@ if __name__ == '__main__':
             temp_c = flags['C']
             temp_a = comp("00000001")
             
-            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):               
+            if(p[1] in ['A', 'B', 'C', 'D', 'E', 'H', 'L']):
                 reg[p[1]] = binadd(reg[p[1]], temp_a, flags)
+                
             elif p[1] == 'M':
                 memory[int(reg['H'] + reg['L'], 2)] = binadd(memory[int(reg['H'] + reg['L'], 2)], temp_a, flags)
             
-            flags['C'] = temp_c        
+            flags['C'] = temp_c
                 
 
         # INX Rp, DCX Rp  ([rp] <-- [rp] - 1, [rp] <-- [rp] - 1)
@@ -585,7 +602,7 @@ if __name__ == '__main__':
             elif p[1] == 'H':
                 temp_a = bin(int(reg['H']+reg['L'], 2)+1).lstrip("0b").zfill(16)
                 reg['H'] = temp_a[0:8]
-                reg['L'] = temp_a[8:16]        
+                reg['L'] = temp_a[8:16]
         
         elif(p[0] == "DCX"):
             
@@ -1000,7 +1017,7 @@ if __name__ == '__main__':
             elif temp_a > temp_b:
                 flags['C'] = 1
             elif temp_a < temp_b:
-                flags['C'] =0
+                flags['C'] = 0
                     
             reg['A'] = temp
             
@@ -1080,7 +1097,7 @@ if __name__ == '__main__':
             if(flags['C'] == 1 and labels.get(p[1]) != None):
                 j = labels.get(p[1])
             else:
-                j += 1            
+                j += 1
             continue
 
         # JNC 16-bit
@@ -1100,7 +1117,7 @@ if __name__ == '__main__':
             if(flags['Z'] == 1 and labels.get(p[1]) != None):
                 j = labels.get(p[1])
             else:
-                j += 1            
+                j += 1
             continue
 
         # JNZ 16-bit
@@ -1110,7 +1127,7 @@ if __name__ == '__main__':
             if(flags['Z'] == 0 and labels.get(p[1]) != None):
                 j = labels.get(p[1])
             else:
-                j += 1            
+                j += 1
             continue
 
         # JP 16-bit

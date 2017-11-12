@@ -1,0 +1,43 @@
+// Arrange in ascending order
+// Statement: Write a program to sort given 10 numbers from memory location 2200H in the ascending order.
+
+// Initialize counter
+MVI B, 09
+
+// Initialize memory pointer
+START: LXI H, 2200
+
+// Initialize counter 2
+MVI C, 09
+
+// Get the number
+BACK: MOV A, M
+INX H
+
+// Compare number with next number
+CMP M
+
+// If less, don’t interchange
+JC SKIP
+
+// If equal, don’t interchange
+JZ SKIP
+
+// Interchange two numbers
+MOV D, M
+MOV M, A
+DCX H
+MOV M, D
+
+INX H
+
+// Decrement counter 2
+SKIP:DCR C
+
+// If not zero, repeat
+JNZ BACK
+
+// Decrement counter 1
+DCR B
+JNZ START
+HLT
