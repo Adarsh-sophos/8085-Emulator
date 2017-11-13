@@ -1075,8 +1075,30 @@ if __name__ == '__main__':
         # It converts the accumulator data from binary to BCD using the AC flag internally.
 
         elif(p[0] == "DAA"):
-            pass
-
+            x = int (reg['A'] , 2)
+            y = bin(x/10).lstrip("-0b").zfill(4)
+            z = bin(x%10).lstrip("-0b").zfill(4)
+            p = y+z
+            if int (y , 2) > 9:
+                flags['C'] = 1
+            if int (z , 2) > 9:
+                flags['AC'] = 1
+            reg['A'] = p
+            
+            
+            no1=0
+            
+            for i in range(8):
+                if reg['A'][i] == 1:
+                    no1+=1
+            if no1 % 2 == 0 :
+                flags['P'] = 1
+                
+            if int (p , 2) == 0:
+                flags['Z'] = 1
+                
+            if p[0] == 1:
+                flags['S'] =1
 
 
 
