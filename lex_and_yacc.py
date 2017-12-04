@@ -25,6 +25,8 @@ import ply.yacc as yacc
 #t_COMMA = r','
 #t_COLON = r':'
 
+print("\n------LEXER START------\n")
+
 tokens = (
    'MOV','MVI','LXI','LDAX','STAX','LDA','STA','LHLD','SHLD','PCHL','SPHL','XCHG','XTHL','PUSH','POP',
    'ADD','ADI','ADC','ACI','SUB','SUI','SBB','SBI','INR','DCR','INX','DCX','DAD',
@@ -251,6 +253,8 @@ def t_COMMENT(t):
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t'
 
+literals = {'F'}
+
 # Error handling rule
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
@@ -273,7 +277,11 @@ while True:
     if not tok: 
         break      # No more input
     print(tok)
+print("")
 
+print("\n------LEXER ENDS------\n")
+
+print("\n------PARSING START------\n")
 
 def p_LXI(p):
     '''statements : statement statements
@@ -446,8 +454,21 @@ def p_LXI(p):
                        | H
        
        byte_8 : DIGIT DIGIT
+              | hex DIGIT
+              | DIGIT hex
        
        byte_16 : DIGIT DIGIT DIGIT DIGIT
+               | hex DIGIT DIGIT DIGIT
+               | DIGIT hex DIGIT DIGIT
+               | DIGIT DIGIT hex DIGIT
+               | DIGIT DIGIT DIGIT hex
+      
+       hex : 'A'
+           | 'B'
+           | 'C'
+           | 'D'
+           | 'E'
+           | 'F'
     '''
 
 # Error rule for syntax errors
@@ -463,3 +484,5 @@ while True:
     if not result:
         break
     print(result)
+
+print("\n------PARSING ENDS------\n")

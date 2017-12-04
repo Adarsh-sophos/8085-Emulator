@@ -1,6 +1,6 @@
 from tokens import create_tokens
 import time
-
+import lex_and_yacc
 
 def binadd(a, b, flags):
     '''
@@ -131,11 +131,13 @@ def binToHex(a):
 if __name__ == '__main__':
         
     start_time = time.clock()
-    print("Enter file name : ",end="")
+    print("\n\nEnter file name : ",end="")
     input_file = input()
     
+    print("\n------EXECUTION ENDS------\n")    
+    
     # input file
-    fo = open("Example programs/" + input_file + ".txt", "r")   
+    fo = open("Example programs/" + input_file + ".txt", "r")
     lines = fo.readlines()
     fo.close()
     
@@ -168,7 +170,7 @@ if __name__ == '__main__':
     memory[eval('0x2207')] = hexToBin('38')
     memory[eval('0x2208')] = hexToBin('35')
     memory[eval('0x2209')] = hexToBin('3A')
-    '''
+    
     # initialize memory locations by user
     print("\nStore data in memory locations.")
     print("(Type 'E' to exit)")
@@ -182,7 +184,7 @@ if __name__ == '__main__':
         mem_value = input("   Enter Value: 0x")
         memory[eval("0x"+mem_addr)] = hexToBin(mem_value)
         print('')
-    '''
+    
     # save labels for jump statements
     labels = {}
     
